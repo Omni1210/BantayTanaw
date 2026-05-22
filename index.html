@@ -7,117 +7,194 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #111; color: #e0e0e0; font-family: 'DM Mono','Courier New',monospace; min-height: 100vh; padding: 24px 16px; }
-    .root { max-width: 960px; margin: 0 auto; }
+    body { background: #111; color: #e0e0e0; font-family: 'DM Mono','Courier New',monospace; min-height: 100vh; padding: 20px 16px; }
 
-    .ph { border-bottom: 1px solid #222; padding-bottom: 20px; margin-bottom: 24px; }
-    .pm { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-    .ptitle { font-size: 26px; font-weight: 700; color: #f0f0f0; display: flex; align-items: center; gap: 10px; }
-    .ptitle i { color: #4ade80; font-size: 22px; }
+    .root { max-width: 1280px; margin: 0 auto; }
+
+    /* HEADER */
+    .ph { border-bottom: 1px solid #222; padding-bottom: 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .ptitle { font-size: 24px; font-weight: 700; color: #f0f0f0; display: flex; align-items: center; gap: 10px; }
+    .ptitle i { color: #4ade80; font-size: 20px; }
     .psub { font-size: 11px; color: #555; margin-top: 3px; letter-spacing: 0.5px; text-transform: uppercase; }
     .filters { display: flex; gap: 6px; flex-wrap: wrap; }
-    .fb { background: #1e1e1e; border: 1px solid #333; color: #aaa; font-size: 12px; padding: 6px 14px; border-radius: 20px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+    .fb { background: #1e1e1e; border: 1px solid #333; color: #aaa; font-size: 12px; padding: 5px 13px; border-radius: 20px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
     .fb.active, .fb:hover { background: #2a2a2a; border-color: #555; color: #f0f0f0; }
 
-    .overview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
-    @media(max-width: 600px) { .overview-grid { grid-template-columns: 1fr; } }
+    /* TWO-COLUMN LAYOUT */
+    .dashboard { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; }
+    @media(max-width: 900px) { .dashboard { grid-template-columns: 1fr; } }
 
-    .mp, .budget-overview { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 18px 20px; }
-    .mr, .bov-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
-    .ml { font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
-    .mpct, .bov-amt { font-size: 28px; font-weight: 700; color: #4ade80; }
-    .mbb, .bov-bar-bg { height: 8px; background: #2a2a2a; border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
-    .mbf, .bov-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
-    .mbf { background: #4ade80; }
-    .tdots, .bov-meta { display: flex; gap: 16px; flex-wrap: wrap; }
-    .di, .bov-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #555; }
-    .dot, .bov-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .bov-sub { font-size: 12px; color: #555; margin-bottom: 8px; }
+    /* LEFT — ERC PANEL (sticky) */
+    .erc-panel { position: sticky; top: 20px; display: flex; flex-direction: column; gap: 12px; }
 
-    .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 20px; }
-    @media(max-width: 600px) { .stats { grid-template-columns: repeat(2,1fr); } }
-    .sc { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px; padding: 14px 16px; }
-    .sl { font-size: 11px; color: #666; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .sn { font-size: 26px; font-weight: 700; }
-    .ss { font-size: 11px; margin-top: 2px; }
+    .sec-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 2px; display: flex; align-items: center; gap: 6px; }
+    .sec-title { font-size: 13px; font-weight: 700; color: #ccc; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
 
-    .cards { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; }
-    @media(max-width: 600px) { .cards { grid-template-columns: 1fr; } }
+    .ecard { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 16px 18px; }
+    .ecard.grant { border-color: #1a3a2a; }
 
-    .tc { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 16px; transition: border-color 0.2s; }
+    .grant-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
+    .grant-amt { font-size: 26px; font-weight: 700; }
+    .grant-sub { font-size: 11px; color: #555; margin-bottom: 8px; }
+    .bar-bg { height: 7px; background: #2a2a2a; border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
+    .bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
+    .bar-meta { display: flex; justify-content: space-between; font-size: 11px; color: #555; }
+
+    .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .metric { background: #141414; border: 1px solid #222; border-radius: 8px; padding: 10px 12px; }
+    .metric-label { font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+    .metric-val { font-size: 18px; font-weight: 700; }
+    .metric-sub { font-size: 10px; margin-top: 2px; }
+
+    /* per-team finance rows */
+    .team-fin-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1e1e1e; }
+    .team-fin-row:last-child { border-bottom: none; }
+    .tf-left { display: flex; align-items: center; gap: 8px; }
+    .tf-av { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+    .tf-name { font-size: 12px; font-weight: 700; color: #e0e0e0; }
+    .tf-sub { font-size: 10px; color: #555; margin-top: 1px; }
+    .tf-right { text-align: right; }
+    .tf-amt { font-size: 12px; font-weight: 700; }
+    .tf-badge { font-size: 10px; padding: 2px 7px; border-radius: 6px; font-weight: 600; margin-top: 3px; display: inline-block; white-space: nowrap; }
+    .tb-green { background: #0a2a1a; color: #4ade80; border: 1px solid #1a4a2a; }
+    .tb-amber { background: #2a1a05; color: #fb923c; border: 1px solid #4a2a10; }
+    .tb-red   { background: #2a0a0a; color: #f87171; border: 1px solid #4a1a1a; }
+
+    /* purchase list */
+    .purchase-row { display: flex; align-items: flex-start; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid #1e1e1e; gap: 8px; }
+    .purchase-row:last-child { border-bottom: none; }
+    .pr-left { flex: 1; min-width: 0; }
+    .pr-item { font-size: 12px; font-weight: 700; color: #e0e0e0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .pr-team { font-size: 10px; color: #555; margin-top: 2px; display: flex; align-items: center; gap: 4px; }
+    .pr-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .pr-right { text-align: right; flex-shrink: 0; }
+    .pr-amt { font-size: 12px; font-weight: 700; color: #e0e0e0; }
+    .pr-status { font-size: 10px; padding: 2px 7px; border-radius: 6px; font-weight: 600; margin-top: 3px; display: inline-block; }
+    .st-pending  { background: #2a1a05; color: #fb923c; border: 1px solid #4a2a10; }
+    .st-approved { background: #0a1a3a; color: #60a5fa; border: 1px solid #1a2a5a; }
+    .st-purchased{ background: #0a2a1a; color: #4ade80; border: 1px solid #1a4a2a; }
+    .no-purchases { font-size: 12px; color: #444; text-align: center; padding: 12px 0; }
+
+    /* surplus/deficit pill */
+    .pill { font-size: 11px; padding: 3px 10px; border-radius: 10px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+    .pill-green { background: #0a2a1a; color: #4ade80; border: 1px solid #1a4a2a; }
+    .pill-red   { background: #2a0a0a; color: #f87171; border: 1px solid #4a1a1a; }
+    .pill-amber { background: #2a1a05; color: #fb923c; border: 1px solid #4a2a10; }
+
+    /* RIGHT — TEAM CARDS */
+    .right-col { display: flex; flex-direction: column; gap: 14px; }
+
+    /* overall progress bar (right col top) */
+    .overview-bar { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 14px 18px; }
+    .ob-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
+    .ob-label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+    .ob-pct { font-size: 24px; font-weight: 700; color: #4ade80; }
+    .ob-bar-bg { height: 6px; background: #2a2a2a; border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+    .ob-bar-fill { height: 100%; border-radius: 3px; background: #4ade80; transition: width 0.6s; }
+    .ob-dots { display: flex; gap: 14px; flex-wrap: wrap; }
+    .ob-dot-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #555; }
+    .ob-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+    /* stat strip */
+    .stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
+    @media(max-width: 700px) { .stats { grid-template-columns: repeat(2,1fr); } }
+    .sc { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px; padding: 12px 14px; }
+    .sl { font-size: 10px; color: #666; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .sn { font-size: 22px; font-weight: 700; }
+    .ss { font-size: 10px; margin-top: 2px; }
+
+    /* team cards */
+    .cards { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
+    @media(max-width: 700px) { .cards { grid-template-columns: 1fr; } }
+    .tc { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 14px; transition: border-color 0.2s; }
     .tc.blocked { border-color: #3d1a1a; }
     .tc.at-risk  { border-color: #3d2e0a; }
     .tc.hidden   { display: none; }
-    .tc.solo { grid-column: 1 / -1; max-width: 460px; margin: 0 auto; width: 100%; }
+    .tc.solo { grid-column: 1 / -1; max-width: 440px; margin: 0 auto; width: 100%; }
 
-    .ch { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .cl { display: flex; align-items: center; gap: 10px; }
-    .av { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
+    .ch { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .cl { display: flex; align-items: center; gap: 8px; }
+    .av { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; }
     .tn { font-size: 14px; font-weight: 700; color: #f0f0f0; }
-    .tl { font-size: 11px; color: #555; margin-top: 2px; }
+    .tl { font-size: 11px; color: #555; margin-top: 1px; }
 
-    .badge { font-size: 10px; padding: 3px 10px; border-radius: 12px; font-weight: 600; white-space: nowrap; }
+    .badge { font-size: 10px; padding: 3px 9px; border-radius: 10px; font-weight: 600; white-space: nowrap; }
     .bg { background: #0a2a1a; color: #4ade80; border: 1px solid #1a4a2a; }
     .ba { background: #2a1a05; color: #fb923c; border: 1px solid #4a2a10; }
     .br { background: #2a0a0a; color: #f87171; border: 1px solid #4a1a1a; }
 
-    .pr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; font-size: 11px; color: #666; }
-    .pb { height: 5px; background: #2a2a2a; border-radius: 3px; overflow: hidden; margin-bottom: 10px; }
-    .pf { height: 100%; border-radius: 3px; transition: width 0.4s; }
+    .pr-bar-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; font-size: 11px; color: #666; }
+    .pb { height: 4px; background: #2a2a2a; border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
+    .pf { height: 100%; border-radius: 2px; transition: width 0.4s; }
 
-    .divider { height: 1px; background: #222; margin: 10px 0; }
+    .divider { height: 1px; background: #222; margin: 8px 0; }
 
     .budget-section { margin-bottom: 6px; }
-    .budget-row { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #666; margin-bottom: 5px; }
+    .budget-row { display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #666; margin-bottom: 4px; }
     .budget-nums { display: flex; gap: 4px; align-items: baseline; }
     .budget-used { font-size: 13px; font-weight: 700; color: #e0e0e0; }
     .budget-alloc { font-size: 11px; color: #555; }
-    .bbar-bg { height: 5px; background: #2a2a2a; border-radius: 3px; overflow: hidden; }
-    .bbar-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
+    .bbar-bg { height: 4px; background: #2a2a2a; border-radius: 2px; overflow: hidden; }
+    .bbar-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
     .over-budget { color: #f87171 !important; }
 
-    .ut { font-size: 12px; color: #888; line-height: 1.6; margin-bottom: 6px; }
+    .ut { font-size: 12px; color: #888; line-height: 1.6; margin-bottom: 4px; }
     .ut strong { color: #ccc; }
-    .bt { font-size: 12px; color: #f87171; line-height: 1.6; margin-bottom: 6px; }
+    .bt { font-size: 12px; color: #f87171; line-height: 1.6; margin-bottom: 4px; }
     .bt strong { color: #fca5a5; }
-
-    .cf { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
+    .cf { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
     .ts { font-size: 10px; color: #444; }
-    .ub { background: #1e1e1e; border: 1px solid #333; color: #aaa; font-size: 11px; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .ub { background: #1e1e1e; border: 1px solid #333; color: #aaa; font-size: 11px; padding: 5px 12px; border-radius: 7px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
     .ub:hover { background: #2a2a2a; border-color: #4ade80; color: #4ade80; }
 
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
+    /* MODAL */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: flex-start; justify-content: center; padding: 20px 16px; overflow-y: auto; }
     .modal-overlay.open { display: flex; }
-    .modal { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 16px; padding: 24px; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; }
-    .mh { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .modal { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 16px; padding: 22px; width: 100%; max-width: 480px; margin: auto; }
+    .mh { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
     .mh h3 { font-size: 15px; font-weight: 700; color: #f0f0f0; }
-    .close-btn { background: none; border: none; color: #555; font-size: 20px; cursor: pointer; line-height: 1; padding: 2px; }
+    .close-btn { background: none; border: none; color: #555; font-size: 20px; cursor: pointer; line-height: 1; }
     .close-btn:hover { color: #aaa; }
 
-    .fg { margin-bottom: 16px; }
-    .flab { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: block; }
-    .fi { width: 100%; background: #111; border: 1px solid #2a2a2a; border-radius: 8px; color: #e0e0e0; font-family: inherit; font-size: 13px; padding: 9px 12px; outline: none; transition: border-color 0.15s; }
+    .fg { margin-bottom: 14px; }
+    .flab { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; display: block; }
+    .fi { width: 100%; background: #111; border: 1px solid #2a2a2a; border-radius: 8px; color: #e0e0e0; font-family: inherit; font-size: 13px; padding: 8px 10px; outline: none; transition: border-color 0.15s; }
     .fi:focus { border-color: #444; }
-    textarea.fi { resize: vertical; min-height: 70px; }
-
+    textarea.fi { resize: vertical; min-height: 56px; }
     .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .sr { display: flex; align-items: center; gap: 12px; }
+
+    .sr { display: flex; align-items: center; gap: 10px; }
     .sr input[type=range] { flex: 1; accent-color: #4ade80; cursor: pointer; }
-    .sv { font-size: 18px; font-weight: 700; color: #4ade80; min-width: 44px; text-align: right; }
+    .sv { font-size: 18px; font-weight: 700; color: #4ade80; min-width: 42px; text-align: right; }
 
     .status-picker { display: flex; gap: 8px; }
-    .so { flex: 1; padding: 8px 4px; border-radius: 8px; border: 1px solid #2a2a2a; background: #111; color: #555; font-size: 11px; text-align: center; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .so { flex: 1; padding: 7px 4px; border-radius: 8px; border: 1px solid #2a2a2a; background: #111; color: #555; font-size: 11px; text-align: center; cursor: pointer; font-family: inherit; transition: all 0.15s; }
     .so:hover { border-color: #444; color: #aaa; }
-    .so.sg { border-color: #1a4a2a; background: #0a2a1a; color: #4ade80; }
-    .so.sa { border-color: #4a2a10; background: #2a1a05; color: #fb923c; }
+    .so.sg  { border-color: #1a4a2a; background: #0a2a1a; color: #4ade80; }
+    .so.sa  { border-color: #4a2a10; background: #2a1a05; color: #fb923c; }
     .so.sr2 { border-color: #4a1a1a; background: #2a0a0a; color: #f87171; }
 
-    .ma { display: flex; gap: 8px; margin-top: 20px; justify-content: flex-end; }
-    .btn-cancel { background: transparent; border: 1px solid #2a2a2a; color: #555; font-size: 12px; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-family: inherit; }
+    /* purchase items inside modal */
+    .purchase-list-modal { border: 1px solid #2a2a2a; border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
+    .plm-row { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-bottom: 1px solid #222; }
+    .plm-row:last-child { border-bottom: none; }
+    .plm-row input.fi { margin: 0; }
+    .plm-name { flex: 1; }
+    .plm-amt  { width: 90px; }
+    .plm-sel  { width: 100px; background: #111; border: 1px solid #2a2a2a; border-radius: 6px; color: #e0e0e0; font-family: inherit; font-size: 11px; padding: 5px 6px; outline: none; cursor: pointer; }
+    .plm-del  { background: none; border: none; color: #555; cursor: pointer; font-size: 16px; flex-shrink: 0; line-height: 1; }
+    .plm-del:hover { color: #f87171; }
+    .add-purchase-btn { background: #141414; border: 1px dashed #333; color: #555; font-size: 11px; padding: 7px; border-radius: 8px; cursor: pointer; font-family: inherit; width: 100%; transition: all 0.15s; }
+    .add-purchase-btn:hover { border-color: #4ade80; color: #4ade80; }
+
+    .modal-section-label { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 8px; display: flex; align-items: center; gap: 6px; border-top: 1px solid #222; padding-top: 14px; }
+
+    .ma { display: flex; gap: 8px; margin-top: 18px; justify-content: flex-end; }
+    .btn-cancel { background: transparent; border: 1px solid #2a2a2a; color: #555; font-size: 12px; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-family: inherit; }
     .btn-cancel:hover { border-color: #444; color: #aaa; }
-    .btn-save { background: #0a2a1a; border: 1px solid #1a4a2a; color: #4ade80; font-size: 12px; padding: 8px 18px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: 700; }
+    .btn-save { background: #0a2a1a; border: 1px solid #1a4a2a; color: #4ade80; font-size: 12px; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: 700; }
     .btn-save:hover { background: #0f3a22; }
-    .pw-error { font-size: 11px; color: #f87171; margin-top: 6px; display: none; }
+    .pw-error { font-size: 11px; color: #f87171; margin-top: 5px; display: none; }
 
     .green { color: #4ade80; } .amber { color: #fb923c; } .red { color: #f87171; } .gray { color: #aaa; }
   </style>
@@ -125,49 +202,109 @@
 <body>
 <div class="root">
 
+  <!-- HEADER -->
   <div class="ph">
-    <div class="pm">
-      <div>
-        <div class="ptitle"><i class="ti ti-hexagon-letter-t" aria-hidden="true"></i>Talatanaw</div>
-        <div class="psub">Team Monitor &nbsp;·&nbsp; 5 sub-teams &nbsp;·&nbsp; 1 project</div>
+    <div>
+      <div class="ptitle"><i class="ti ti-hexagon-letter-t" aria-hidden="true"></i>Talatanaw</div>
+      <div class="psub">Team Monitor &nbsp;·&nbsp; 5 sub-teams &nbsp;·&nbsp; 1 project</div>
+    </div>
+    <div class="filters">
+      <button class="fb active" onclick="filterCards('all',this)" data-filter="all">All</button>
+      <button class="fb" onclick="filterCards('on-track',this)" data-filter="on-track">On track</button>
+      <button class="fb" onclick="filterCards('at-risk',this)" data-filter="at-risk">At risk</button>
+      <button class="fb" onclick="filterCards('blocked',this)" data-filter="blocked">Blocked</button>
+    </div>
+  </div>
+
+  <div class="dashboard">
+
+    <!-- LEFT: ERC FUNDING PANEL -->
+    <div class="erc-panel" id="erc-panel">
+
+      <div class="sec-label"><i class="ti ti-building-bank" style="font-size:13px" aria-hidden="true"></i>ERC Funding</div>
+
+      <!-- Grant overview -->
+      <div class="ecard grant">
+        <div class="grant-row">
+          <span style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:0.5px">Total ERC grant</span>
+          <span id="erc-pill" class="pill pill-green"></span>
+        </div>
+        <div style="margin:6px 0 2px">
+          <span class="grant-amt green" id="erc-total-amt">₱0</span>
+        </div>
+        <div class="grant-sub" id="erc-sub">₱0 spent &nbsp;·&nbsp; ₱0 remaining</div>
+        <div class="bar-bg"><div class="bar-fill" id="erc-bar" style="width:0%;background:#4ade80"></div></div>
+        <div class="bar-meta"><span id="erc-bar-pct">0% of grant used</span><span id="erc-bar-rem">₱0 left</span></div>
       </div>
-      <div class="filters">
-        <button class="fb active" onclick="filterCards('all',this)" data-filter="all">All</button>
-        <button class="fb" onclick="filterCards('on-track',this)" data-filter="on-track">On track</button>
-        <button class="fb" onclick="filterCards('at-risk',this)" data-filter="at-risk">At risk</button>
-        <button class="fb" onclick="filterCards('blocked',this)" data-filter="blocked">Blocked</button>
+
+      <!-- 4 metrics -->
+      <div class="metrics-grid">
+        <div class="metric">
+          <div class="metric-label">Teams in deficit</div>
+          <div class="metric-val red" id="erc-deficit-count">0</div>
+          <div class="metric-sub red">needs reallocation</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Pending items</div>
+          <div class="metric-val amber" id="erc-pending-count">0</div>
+          <div class="metric-sub amber">awaiting approval</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Total allocated</div>
+          <div class="metric-val gray" id="erc-alloc-total">₱0</div>
+          <div class="metric-sub gray">across 5 teams</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Total spent</div>
+          <div class="metric-val gray" id="erc-spent-total">₱0</div>
+          <div class="metric-sub gray">rover-wide</div>
+        </div>
       </div>
+
+      <!-- Per-team finance -->
+      <div class="ecard">
+        <div class="sec-title"><i class="ti ti-users" style="font-size:13px" aria-hidden="true"></i>Per-team status</div>
+        <div id="erc-team-rows"></div>
+      </div>
+
+      <!-- Purchase list -->
+      <div class="ecard">
+        <div class="sec-title"><i class="ti ti-shopping-cart" style="font-size:13px" aria-hidden="true"></i>Items to be purchased</div>
+        <div id="erc-purchases"></div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: TEAM CARDS COLUMN -->
+    <div class="right-col">
+
+      <!-- Overall progress -->
+      <div class="overview-bar">
+        <div class="ob-row"><span class="ob-label">Overall progress</span><span class="ob-pct" id="mpct">0%</span></div>
+        <div class="ob-bar-bg"><div class="ob-bar-fill" id="mbar" style="width:0%"></div></div>
+        <div class="ob-dots" id="tdots"></div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats">
+        <div class="sc"><div class="sl">Sub-teams</div><div class="sn gray">5</div><div class="ss gray">on this project</div></div>
+        <div class="sc"><div class="sl">On track</div><div class="sn green" id="s-on">0</div><div class="ss green">teams healthy</div></div>
+        <div class="sc"><div class="sl">At risk</div><div class="sn amber" id="s-ar">0</div><div class="ss amber">needs attention</div></div>
+        <div class="sc"><div class="sl">Blocked</div><div class="sn red" id="s-bl">0</div><div class="ss red">action required</div></div>
+      </div>
+
+      <!-- Team cards -->
+      <div class="cards" id="cards"></div>
+
     </div>
   </div>
-
-  <div class="overview-grid">
-    <div class="mp">
-      <div class="mr"><span class="ml">Overall progress</span><span class="mpct" id="mpct">0%</span></div>
-      <div class="mbb"><div class="mbf" id="mbar" style="width:0%"></div></div>
-      <div class="tdots" id="tdots"></div>
-    </div>
-    <div class="budget-overview">
-      <div class="bov-row"><span class="ml">Rover budget</span><span class="bov-amt" id="bov-pct">0%</span></div>
-      <div class="bov-sub"><span id="bov-used">₱0</span> used of <span id="bov-total">₱0</span> allocated</div>
-      <div class="bov-bar-bg"><div class="bov-bar-fill" id="bov-bar" style="width:0%;background:#4ade80"></div></div>
-      <div class="bov-meta" id="bov-meta"></div>
-    </div>
-  </div>
-
-  <div class="stats">
-    <div class="sc"><div class="sl">Sub-teams</div><div class="sn gray">5</div><div class="ss gray">on this project</div></div>
-    <div class="sc"><div class="sl">On track</div><div class="sn green" id="s-on">0</div><div class="ss green">teams healthy</div></div>
-    <div class="sc"><div class="sl">At risk</div><div class="sn amber" id="s-ar">0</div><div class="ss amber">needs attention</div></div>
-    <div class="sc"><div class="sl">Blocked</div><div class="sn red" id="s-bl">0</div><div class="ss red">action required</div></div>
-  </div>
-
-  <div class="cards" id="cards"></div>
 </div>
 
-<!-- Modal -->
+<!-- MODAL -->
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <div class="mh"><h3 id="mtitle">Update</h3><button class="close-btn" onclick="closeModal()"><i class="ti ti-x" aria-hidden="true"></i></button></div>
+
     <div id="s-auth">
       <div class="fg">
         <label class="flab">Team password</label>
@@ -179,11 +316,14 @@
         <button class="btn-save" onclick="checkPw()">Unlock</button>
       </div>
     </div>
+
     <div id="s-edit" style="display:none">
+      <!-- Progress -->
       <div class="fg">
         <label class="flab">Progress</label>
         <div class="sr"><input type="range" min="0" max="100" step="1" id="ep" oninput="document.getElementById('epv').textContent=this.value+'%'" /><span class="sv" id="epv">0%</span></div>
       </div>
+      <!-- Status -->
       <div class="fg">
         <label class="flab">Status</label>
         <div class="status-picker">
@@ -192,26 +332,35 @@
           <button class="so" data-val="blocked"  onclick="pickStatus(this)">Blocked</button>
         </div>
       </div>
+      <!-- Budget -->
       <div class="fg">
         <div class="input-row">
           <div>
             <label class="flab">Budget allocated (₱)</label>
-            <input class="fi" type="number" id="e-alloc" min="0" placeholder="e.g. 5000" />
+            <input class="fi" type="number" id="e-alloc" min="0" placeholder="e.g. 10000" />
           </div>
           <div>
             <label class="flab">Budget used (₱)</label>
-            <input class="fi" type="number" id="e-used" min="0" placeholder="e.g. 2500" />
+            <input class="fi" type="number" id="e-used" min="0" placeholder="e.g. 5000" />
           </div>
         </div>
       </div>
+      <!-- Update note -->
       <div class="fg">
         <label class="flab">Update note</label>
         <textarea class="fi" id="eu" placeholder="What's the latest progress?"></textarea>
       </div>
+      <!-- Blocker -->
       <div class="fg">
-        <label class="flab">Blocker <span style="color:#333">(leave blank if none)</span></label>
+        <label class="flab">Blocker <span style="color:#2a2a2a">(leave blank if none)</span></label>
         <textarea class="fi" id="eb" placeholder="Any blockers?"></textarea>
       </div>
+
+      <!-- Purchase requests -->
+      <div class="modal-section-label"><i class="ti ti-shopping-cart" style="font-size:12px" aria-hidden="true"></i>Purchase requests</div>
+      <div id="purchase-list-modal"></div>
+      <button class="add-purchase-btn" onclick="addPurchaseRow()"><i class="ti ti-plus" style="font-size:12px" aria-hidden="true"></i> Add item</button>
+
       <div class="ma">
         <button class="btn-cancel" onclick="closeModal()">Cancel</button>
         <button class="btn-save" onclick="saveUpdate()"><i class="ti ti-check" style="font-size:12px" aria-hidden="true"></i> Save</button>
@@ -222,11 +371,11 @@
 
 <script>
   const TEAMS = [
-    { id:'mobility',  name:'Mobility',      lead:'Gian Crisologo',   password:'mobility123', status:'on-track', progress:0, update:'', blocker:'', timestamp:'', dot:'#60a5fa', fill:'#60a5fa', initials:'MO', allocated:0, used:0 },
-    { id:'drone',     name:'Drone',          lead:'John Isaac Olave', password:'drone123',    status:'on-track', progress:0, update:'', blocker:'', timestamp:'', dot:'#22d3ee', fill:'#22d3ee', initials:'DR', allocated:0, used:0 },
-    { id:'navigation',name:'Navigation',     lead:'Roentgen',         password:'nav123',      status:'on-track', progress:0, update:'', blocker:'', timestamp:'', dot:'#a78bfa', fill:'#a78bfa', initials:'NA', allocated:0, used:0 },
-    { id:'arm',       name:'Robotic Arm',    lead:'Earl Balabag',     password:'arm123',      status:'on-track', progress:0, update:'', blocker:'', timestamp:'', dot:'#fb923c', fill:'#fb923c', initials:'RA', allocated:0, used:0 },
-    { id:'drill',     name:'Robotic Drill',  lead:'Franz Deo',        password:'drill123',    status:'on-track', progress:0, update:'', blocker:'', timestamp:'', dot:'#f87171', fill:'#f87171', initials:'RD', allocated:0, used:0 }
+    { id:'mobility',   name:'Mobility',      lead:'Gian Crisologo',   password:'mobility123', status:'on-track', progress:0, update:'', blocker:'', timestamp:'', dot:'#60a5fa', fill:'#60a5fa', initials:'MO', allocated:0, used:0, purchases:[] },
+    { id:'drone',      name:'Drone',          lead:'John Isaac Olave', password:'drone123',    status:'on-track', progress:0, update:'', blocker:'', timestamp:'', dot:'#22d3ee', fill:'#22d3ee', initials:'DR', allocated:0, used:0, purchases:[] },
+    { id:'navigation', name:'Navigation',     lead:'Roentgen',         password:'nav123',      status:'on-track', progress:0, update:'', blocker:'', timestamp:'', dot:'#a78bfa', fill:'#a78bfa', initials:'NA', allocated:0, used:0, purchases:[] },
+    { id:'arm',        name:'Robotic Arm',    lead:'Earl Balabag',     password:'arm123',      status:'on-track', progress:0, update:'', blocker:'', timestamp:'', dot:'#fb923c', fill:'#fb923c', initials:'RA', allocated:0, used:0, purchases:[] },
+    { id:'drill',      name:'Robotic Drill',  lead:'Franz Deo',        password:'drill123',    status:'on-track', progress:0, update:'', blocker:'', timestamp:'', dot:'#f87171', fill:'#f87171', initials:'RD', allocated:0, used:0, purchases:[] }
   ];
 
   function fmt(n) { return '₱' + Math.round(n).toLocaleString(); }
@@ -234,19 +383,24 @@
   function bLabel(s) { return s==='on-track'?'On track':s==='at-risk'?'At risk':'Blocked'; }
   function pColor(s) { return s==='on-track'?'#4ade80':s==='at-risk'?'#fb923c':'#f87171'; }
   function cardExtra(s) { return s==='blocked'?'blocked':s==='at-risk'?'at-risk':''; }
-  function budgetColor(pct) { return pct>100?'#f87171':pct>80?'#fb923c':'#4ade80'; }
+  function budgetColor(pct) { return pct > 100 ? '#f87171' : pct > 80 ? '#fb923c' : '#4ade80'; }
+  function tfBadgeClass(pct) { return pct > 100 ? 'tb-red' : pct > 80 ? 'tb-amber' : 'tb-green'; }
 
   function renderAll() {
     const c = document.getElementById('cards');
     c.innerHTML = '';
-    let tot=0, on=0, ar=0, bl=0, dots=[], totalAlloc=0, totalUsed=0;
+    let progTotal=0, on=0, ar=0, bl=0, dots=[];
+    let totalAlloc=0, totalUsed=0, deficitCount=0;
+    let allPurchases = [];
 
     TEAMS.forEach((t, i) => {
-      tot += t.progress;
+      progTotal += t.progress;
       if (t.status==='on-track') on++; else if (t.status==='at-risk') ar++; else bl++;
       totalAlloc += t.allocated;
       totalUsed  += t.used;
-      dots.push(`<div class="di"><div class="dot" style="background:${t.dot}"></div><span>${t.name} ${t.progress}%</span></div>`);
+      if (t.allocated > 0 && t.used > t.allocated) deficitCount++;
+      t.purchases.forEach(p => allPurchases.push({ ...p, teamName: t.name, teamDot: t.dot }));
+      dots.push(`<div class="ob-dot-item"><div class="ob-dot" style="background:${t.dot}"></div><span>${t.name} ${t.progress}%</span></div>`);
 
       const solo = (i === TEAMS.length-1) && (TEAMS.length % 2 !== 0);
       const blk  = t.blocker ? `<p class="bt"><strong>Blocker:</strong> ${t.blocker}</p>` : '';
@@ -265,7 +419,7 @@
             </div>
             <span class="badge ${bClass(t.status)}">${bLabel(t.status)}</span>
           </div>
-          <div class="pr"><span>Progress</span><span style="color:${pColor(t.status)}">${t.progress}%</span></div>
+          <div class="pr-bar-row"><span>Progress</span><span style="color:${pColor(t.status)}">${t.progress}%</span></div>
           <div class="pb"><div class="pf" style="width:${t.progress}%;background:${t.fill}"></div></div>
           <div class="divider"></div>
           <div class="budget-section">
@@ -286,7 +440,8 @@
         </div>`);
     });
 
-    const avg = Math.round(tot / TEAMS.length);
+    // Right col — progress
+    const avg = Math.round(progTotal / TEAMS.length);
     document.getElementById('mpct').textContent = avg + '%';
     document.getElementById('mbar').style.width = avg + '%';
     document.getElementById('tdots').innerHTML = dots.join('');
@@ -294,18 +449,90 @@
     document.getElementById('s-ar').textContent = ar;
     document.getElementById('s-bl').textContent = bl;
 
-    const roverPct    = totalAlloc > 0 ? Math.round((totalUsed/totalAlloc)*100) : 0;
-    const roverCapped = Math.min(roverPct, 100);
-    const roverCol    = budgetColor(roverPct);
-    document.getElementById('bov-pct').textContent  = roverPct + '%';
-    document.getElementById('bov-pct').style.color  = roverCol;
-    document.getElementById('bov-used').textContent = fmt(totalUsed);
-    document.getElementById('bov-total').textContent= fmt(totalAlloc);
-    document.getElementById('bov-bar').style.width  = roverCapped + '%';
-    document.getElementById('bov-bar').style.background = roverCol;
-    document.getElementById('bov-meta').innerHTML   = TEAMS.map(t => `<div class="bov-item"><div class="bov-dot" style="background:${t.dot}"></div><span>${t.name} ${fmt(t.used)}</span></div>`).join('');
+    // ERC panel
+    const ercTotal  = totalAlloc; // grant = sum of allocations
+    const remaining = ercTotal - totalUsed;
+    const usedPct   = ercTotal > 0 ? Math.round((totalUsed/ercTotal)*100) : 0;
+    const usedPctCapped = Math.min(usedPct, 100);
+    const ercCol    = budgetColor(usedPct);
+
+    document.getElementById('erc-total-amt').textContent = fmt(ercTotal);
+    document.getElementById('erc-total-amt').style.color = ercCol;
+    document.getElementById('erc-sub').textContent = fmt(totalUsed) + ' spent · ' + (remaining >= 0 ? fmt(remaining) + ' remaining' : fmt(Math.abs(remaining)) + ' over budget');
+    document.getElementById('erc-bar').style.width = usedPctCapped + '%';
+    document.getElementById('erc-bar').style.background = ercCol;
+    document.getElementById('erc-bar-pct').textContent = usedPct + '% of grant used';
+    document.getElementById('erc-bar-rem').textContent  = remaining >= 0 ? fmt(remaining) + ' left' : fmt(Math.abs(remaining)) + ' over';
+
+    // pill
+    const pillEl = document.getElementById('erc-pill');
+    if (remaining >= 0) {
+      pillEl.className = 'pill pill-green';
+      pillEl.innerHTML = '<i class="ti ti-trending-up" style="font-size:11px" aria-hidden="true"></i> Surplus ' + fmt(remaining);
+    } else {
+      pillEl.className = 'pill pill-red';
+      pillEl.innerHTML = '<i class="ti ti-trending-down" style="font-size:11px" aria-hidden="true"></i> Deficit ' + fmt(Math.abs(remaining));
+    }
+
+    document.getElementById('erc-deficit-count').textContent = deficitCount;
+    const pendingCount = allPurchases.filter(p => p.status === 'pending').length;
+    document.getElementById('erc-pending-count').textContent = pendingCount;
+    document.getElementById('erc-alloc-total').textContent = fmt(totalAlloc);
+    document.getElementById('erc-spent-total').textContent = fmt(totalUsed);
+
+    // Per-team rows
+    let teamRowsHTML = '';
+    TEAMS.forEach(t => {
+      const pct = t.allocated > 0 ? Math.round((t.used/t.allocated)*100) : 0;
+      const leftAmt = t.allocated - t.used;
+      const col = budgetColor(pct);
+      const bdgCls = tfBadgeClass(pct);
+      const leftLabel = leftAmt >= 0
+        ? `<span style="color:${col}">${fmt(leftAmt)} left</span>`
+        : `<span style="color:#f87171">${fmt(Math.abs(leftAmt))} over</span>`;
+      const badgeLabel = pct > 100 ? 'Deficit' : pct > 80 ? 'Watch' : 'OK';
+      teamRowsHTML += `
+        <div class="team-fin-row">
+          <div class="tf-left">
+            <div class="tf-av" style="background:${t.dot}22;color:${t.dot}">${t.initials}</div>
+            <div>
+              <div class="tf-name">${t.name}</div>
+              <div class="tf-sub">${fmt(t.used)} / ${fmt(t.allocated)}</div>
+            </div>
+          </div>
+          <div class="tf-right">
+            <div class="tf-amt">${leftLabel}</div>
+            <span class="tf-badge ${bdgCls}">${pct}% — ${badgeLabel}</span>
+          </div>
+        </div>`;
+    });
+    document.getElementById('erc-team-rows').innerHTML = teamRowsHTML;
+
+    // Purchase list
+    let purchaseHTML = '';
+    if (allPurchases.length === 0) {
+      purchaseHTML = '<div class="no-purchases"><i class="ti ti-circle-check" style="font-size:14px;vertical-align:-2px;margin-right:4px" aria-hidden="true"></i>No purchase requests yet</div>';
+    } else {
+      allPurchases.forEach(p => {
+        const stClass = p.status === 'pending' ? 'st-pending' : p.status === 'approved' ? 'st-approved' : 'st-purchased';
+        const stLabel = p.status.charAt(0).toUpperCase() + p.status.slice(1);
+        purchaseHTML += `
+          <div class="purchase-row">
+            <div class="pr-left">
+              <div class="pr-item">${p.item}</div>
+              <div class="pr-team"><div class="pr-dot" style="background:${p.teamDot}"></div>${p.teamName}</div>
+            </div>
+            <div class="pr-right">
+              <div class="pr-amt">${fmt(p.amount)}</div>
+              <span class="pr-status ${stClass}">${stLabel}</span>
+            </div>
+          </div>`;
+      });
+    }
+    document.getElementById('erc-purchases').innerHTML = purchaseHTML;
   }
 
+  /* ---- MODAL ---- */
   let activeId = null, selStatus = null;
 
   function openModal(id) {
@@ -337,11 +564,42 @@
         if (b.dataset.val === t.status)
           b.classList.add(t.status==='on-track'?'sg':t.status==='at-risk'?'sa':'sr2');
       });
+      renderPurchaseModal(t.purchases);
     } else {
       document.getElementById('pwerr').style.display = 'block';
       document.getElementById('pw').value = '';
       document.getElementById('pw').focus();
     }
+  }
+
+  function renderPurchaseModal(purchases) {
+    const el = document.getElementById('purchase-list-modal');
+    if (!purchases.length) { el.innerHTML = ''; return; }
+    el.innerHTML = '<div class="purchase-list-modal">' +
+      purchases.map((p, i) => `
+        <div class="plm-row">
+          <input class="fi plm-name" type="text" placeholder="Item name" value="${p.item}" id="pm-item-${i}" />
+          <input class="fi plm-amt"  type="number" placeholder="₱ amount" value="${p.amount||''}" id="pm-amt-${i}" min="0" />
+          <select class="plm-sel" id="pm-status-${i}">
+            <option value="pending"  ${p.status==='pending'?'selected':''}>Pending</option>
+            <option value="approved" ${p.status==='approved'?'selected':''}>Approved</option>
+            <option value="purchased"${p.status==='purchased'?'selected':''}>Purchased</option>
+          </select>
+          <button class="plm-del" onclick="removePurchaseRow(${i})" aria-label="Remove"><i class="ti ti-trash" aria-hidden="true"></i></button>
+        </div>`).join('') +
+      '</div>';
+  }
+
+  function addPurchaseRow() {
+    const t = TEAMS.find(x => x.id === activeId);
+    t.purchases.push({ item: '', amount: 0, status: 'pending' });
+    renderPurchaseModal(t.purchases);
+  }
+
+  function removePurchaseRow(idx) {
+    const t = TEAMS.find(x => x.id === activeId);
+    t.purchases.splice(idx, 1);
+    renderPurchaseModal(t.purchases);
   }
 
   function pickStatus(btn) {
@@ -352,13 +610,23 @@
 
   function saveUpdate() {
     const t = TEAMS.find(x => x.id === activeId);
-    t.progress  = parseInt(document.getElementById('ep').value);
+    t.progress  = parseInt(document.getElementById('ep').value) || 0;
     t.status    = selStatus || t.status;
     t.update    = document.getElementById('eu').value.trim();
     t.blocker   = document.getElementById('eb').value.trim();
     t.allocated = parseFloat(document.getElementById('e-alloc').value) || 0;
     t.used      = parseFloat(document.getElementById('e-used').value)  || 0;
-    const now   = new Date();
+    // read purchases from modal inputs
+    t.purchases.forEach((p, i) => {
+      const nameEl   = document.getElementById('pm-item-' + i);
+      const amtEl    = document.getElementById('pm-amt-' + i);
+      const statusEl = document.getElementById('pm-status-' + i);
+      if (nameEl)   p.item   = nameEl.value.trim();
+      if (amtEl)    p.amount = parseFloat(amtEl.value) || 0;
+      if (statusEl) p.status = statusEl.value;
+    });
+    t.purchases = t.purchases.filter(p => p.item !== '');
+    const now = new Date();
     t.timestamp = 'Today, ' + now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
     closeModal();
     renderAll();
@@ -374,7 +642,6 @@
     btn.dataset.filter = status;
     applyFilter(status);
   }
-
   function applyFilter(status) {
     document.querySelectorAll('.tc').forEach(card => {
       card.classList.toggle('hidden', status !== 'all' && card.dataset.status !== status);
