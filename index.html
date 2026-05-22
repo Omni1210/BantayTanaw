@@ -9,7 +9,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: #111; color: #e0e0e0; font-family: 'DM Mono','Courier New',monospace; min-height: 100vh; padding: 20px 16px; }
 
-    .root { max-width: 1280px; margin: 0 auto; }
+    .root { max-width: 1600px; margin: 0 auto; }
 
     /* HEADER */
     .ph { border-bottom: 1px solid #222; padding-bottom: 16px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
@@ -20,9 +20,10 @@
     .fb { background: #1e1e1e; border: 1px solid #333; color: #aaa; font-size: 12px; padding: 5px 13px; border-radius: 20px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
     .fb.active, .fb:hover { background: #2a2a2a; border-color: #555; color: #f0f0f0; }
 
-    /* TWO-COLUMN LAYOUT */
-    .dashboard { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; }
-    @media(max-width: 900px) { .dashboard { grid-template-columns: 1fr; } }
+    /* THREE-COLUMN LAYOUT */
+    .dashboard { display: grid; grid-template-columns: 300px 1fr 280px; gap: 20px; align-items: start; }
+    @media(max-width: 1100px) { .dashboard { grid-template-columns: 280px 1fr; } .history-col { display: none; } }
+    @media(max-width: 900px)  { .dashboard { grid-template-columns: 1fr; } }
 
     /* LEFT — ERC PANEL (sticky) */
     .erc-panel { position: sticky; top: 20px; display: flex; flex-direction: column; gap: 12px; }
@@ -81,10 +82,10 @@
     .pill-red   { background: #2a0a0a; color: #f87171; border: 1px solid #4a1a1a; }
     .pill-amber { background: #2a1a05; color: #fb923c; border: 1px solid #4a2a10; }
 
-    /* RIGHT — TEAM CARDS */
+    /* MIDDLE — TEAM CARDS */
     .right-col { display: flex; flex-direction: column; gap: 14px; }
 
-    /* overall progress bar (right col top) */
+    /* overall progress bar */
     .overview-bar { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 14px 18px; }
     .ob-row { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px; }
     .ob-label { font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -146,6 +147,174 @@
     .ts { font-size: 10px; color: #444; }
     .ub { background: #1e1e1e; border: 1px solid #333; color: #aaa; font-size: 11px; padding: 5px 12px; border-radius: 7px; cursor: pointer; font-family: inherit; transition: all 0.15s; }
     .ub:hover { background: #2a2a2a; border-color: #4ade80; color: #4ade80; }
+
+    /* ===================== */
+    /* RIGHT — HISTORY PANEL */
+    /* ===================== */
+    .history-col {
+      position: sticky;
+      top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-height: calc(100vh - 40px);
+    }
+
+    .history-panel {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      max-height: calc(100vh - 40px);
+    }
+
+    .history-header {
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid #222;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .history-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ccc;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .history-count {
+      font-size: 10px;
+      background: #2a2a2a;
+      color: #555;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    .history-clear {
+      background: none;
+      border: none;
+      color: #444;
+      font-size: 10px;
+      cursor: pointer;
+      font-family: inherit;
+      padding: 3px 8px;
+      border-radius: 6px;
+      transition: all 0.15s;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .history-clear:hover { color: #f87171; background: #2a0a0a; }
+
+    .history-feed {
+      overflow-y: auto;
+      flex: 1;
+      padding: 10px 0;
+      scrollbar-width: thin;
+      scrollbar-color: #2a2a2a transparent;
+    }
+    .history-feed::-webkit-scrollbar { width: 4px; }
+    .history-feed::-webkit-scrollbar-track { background: transparent; }
+    .history-feed::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+
+    .history-empty {
+      padding: 32px 16px;
+      text-align: center;
+      color: #333;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+    .history-empty i { font-size: 24px; display: block; margin-bottom: 8px; color: #2a2a2a; }
+
+    /* Individual history entry */
+    .h-entry {
+      padding: 10px 14px;
+      border-bottom: 1px solid #1e1e1e;
+      animation: slideIn 0.25s ease;
+    }
+    .h-entry:last-child { border-bottom: none; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .h-top {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 6px;
+    }
+
+    .h-av {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .h-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #e0e0e0;
+      flex: 1;
+    }
+
+    .h-time {
+      font-size: 10px;
+      color: #444;
+      white-space: nowrap;
+    }
+
+    /* change rows inside an entry */
+    .h-changes { display: flex; flex-direction: column; gap: 4px; }
+
+    .h-change {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      font-size: 11px;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .h-change i { font-size: 11px; flex-shrink: 0; margin-top: 1px; }
+
+    .h-change .hc-label { color: #444; margin-right: 2px; }
+    .h-change .hc-val   { color: #aaa; }
+    .h-change .hc-arrow { color: #333; margin: 0 3px; }
+    .h-change .hc-new   { font-weight: 700; }
+
+    /* color helpers for change values */
+    .hc-green  { color: #4ade80 !important; }
+    .hc-amber  { color: #fb923c !important; }
+    .hc-red    { color: #f87171 !important; }
+    .hc-blue   { color: #60a5fa !important; }
+
+    /* pulse dot for newest */
+    .h-entry:first-child .h-av::after {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: #4ade80;
+      border-radius: 50%;
+      top: -1px;
+      right: -1px;
+      border: 1px solid #1a1a1a;
+    }
+    .h-entry:first-child .h-av { position: relative; }
 
     /* MODAL */
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: flex-start; justify-content: center; padding: 20px 16px; overflow-y: auto; }
@@ -275,7 +444,7 @@
 
     </div>
 
-    <!-- RIGHT: TEAM CARDS COLUMN -->
+    <!-- MIDDLE: TEAM CARDS COLUMN -->
     <div class="right-col">
 
       <!-- Overall progress -->
@@ -297,6 +466,27 @@
       <div class="cards" id="cards"></div>
 
     </div>
+
+    <!-- RIGHT: HISTORY PANEL -->
+    <div class="history-col">
+      <div class="history-panel">
+        <div class="history-header">
+          <div class="history-title">
+            <i class="ti ti-history" style="font-size:13px;color:#4ade80" aria-hidden="true"></i>
+            Update History
+            <span class="history-count" id="history-count">0</span>
+          </div>
+          <button class="history-clear" onclick="clearHistory()" title="Clear all history">Clear</button>
+        </div>
+        <div class="history-feed" id="history-feed">
+          <div class="history-empty">
+            <i class="ti ti-clock-hour-3" aria-hidden="true"></i>
+            No updates yet.<br>Changes will appear<br>here in real time.
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -378,6 +568,9 @@
     { id:'drill',      name:'Robotic Drill',  lead:'Franz Deo',        password:'drill123',    status:'on-track', progress:0, update:'', blocker:'', timestamp:'', dot:'#f87171', fill:'#f87171', initials:'RD', allocated:0, used:0, purchases:[] }
   ];
 
+  // History log — newest first
+  const HISTORY = [];
+
   function fmt(n) { return '₱' + Math.round(n).toLocaleString(); }
   function bClass(s) { return s==='on-track'?'bg':s==='at-risk'?'ba':'br'; }
   function bLabel(s) { return s==='on-track'?'On track':s==='at-risk'?'At risk':'Blocked'; }
@@ -385,6 +578,94 @@
   function cardExtra(s) { return s==='blocked'?'blocked':s==='at-risk'?'at-risk':''; }
   function budgetColor(pct) { return pct > 100 ? '#f87171' : pct > 80 ? '#fb923c' : '#4ade80'; }
   function tfBadgeClass(pct) { return pct > 100 ? 'tb-red' : pct > 80 ? 'tb-amber' : 'tb-green'; }
+
+  /* ======================== */
+  /* HISTORY HELPERS          */
+  /* ======================== */
+
+  function pushHistory(entry) {
+    HISTORY.unshift(entry); // newest first
+    renderHistory();
+  }
+
+  function clearHistory() {
+    HISTORY.length = 0;
+    renderHistory();
+  }
+
+  function renderHistory() {
+    const feed = document.getElementById('history-feed');
+    document.getElementById('history-count').textContent = HISTORY.length;
+
+    if (HISTORY.length === 0) {
+      feed.innerHTML = `
+        <div class="history-empty">
+          <i class="ti ti-clock-hour-3" aria-hidden="true"></i>
+          No updates yet.<br>Changes will appear<br>here in real time.
+        </div>`;
+      return;
+    }
+
+    feed.innerHTML = HISTORY.map(e => buildEntryHTML(e)).join('');
+  }
+
+  function buildEntryHTML(e) {
+    const changesHTML = e.changes.map(c => {
+      if (c.type === 'progress') {
+        const arrowCol = c.newVal > c.oldVal ? 'hc-green' : 'hc-red';
+        const icon     = c.newVal > c.oldVal ? 'ti-trending-up' : 'ti-trending-down';
+        return `<div class="h-change">
+          <i class="ti ${icon} ${arrowCol}" aria-hidden="true"></i>
+          <span><span class="hc-label">Progress</span>
+          <span class="hc-val">${c.oldVal}%</span>
+          <span class="hc-arrow">→</span>
+          <span class="hc-new ${arrowCol}">${c.newVal}%</span></span>
+        </div>`;
+      }
+      if (c.type === 'budget-alloc') {
+        return `<div class="h-change">
+          <i class="ti ti-coin hc-blue" aria-hidden="true"></i>
+          <span><span class="hc-label">Allocated</span>
+          <span class="hc-val">${fmt(c.oldVal)}</span>
+          <span class="hc-arrow">→</span>
+          <span class="hc-new hc-blue">${fmt(c.newVal)}</span></span>
+        </div>`;
+      }
+      if (c.type === 'budget-used') {
+        const pct = c.allocVal > 0 ? Math.round((c.newVal / c.allocVal) * 100) : 0;
+        const col = pct > 100 ? 'hc-red' : pct > 80 ? 'hc-amber' : 'hc-green';
+        return `<div class="h-change">
+          <i class="ti ti-receipt hc-amber" aria-hidden="true"></i>
+          <span><span class="hc-label">Spent</span>
+          <span class="hc-val">${fmt(c.oldVal)}</span>
+          <span class="hc-arrow">→</span>
+          <span class="hc-new ${col}">${fmt(c.newVal)}</span></span>
+        </div>`;
+      }
+      if (c.type === 'purchases') {
+        return `<div class="h-change">
+          <i class="ti ti-shopping-bag hc-amber" aria-hidden="true"></i>
+          <span><span class="hc-label">Purchases</span>
+          <span class="hc-new hc-amber">${c.added} added, ${c.removed} removed</span></span>
+        </div>`;
+      }
+      return '';
+    }).join('');
+
+    return `
+      <div class="h-entry">
+        <div class="h-top">
+          <div class="h-av" style="background:${e.dot}22;color:${e.dot}">${e.initials}</div>
+          <span class="h-name">${e.teamName}</span>
+          <span class="h-time">${e.time}</span>
+        </div>
+        <div class="h-changes">${changesHTML || '<span style="font-size:11px;color:#444">No tracked changes</span>'}</div>
+      </div>`;
+  }
+
+  /* ======================== */
+  /* MAIN RENDER              */
+  /* ======================== */
 
   function renderAll() {
     const c = document.getElementById('cards');
@@ -450,7 +731,7 @@
     document.getElementById('s-bl').textContent = bl;
 
     // ERC panel
-    const ercTotal  = totalAlloc; // grant = sum of allocations
+    const ercTotal  = totalAlloc;
     const remaining = ercTotal - totalUsed;
     const usedPct   = ercTotal > 0 ? Math.round((totalUsed/ercTotal)*100) : 0;
     const usedPctCapped = Math.min(usedPct, 100);
@@ -464,7 +745,6 @@
     document.getElementById('erc-bar-pct').textContent = usedPct + '% of grant used';
     document.getElementById('erc-bar-rem').textContent  = remaining >= 0 ? fmt(remaining) + ' left' : fmt(Math.abs(remaining)) + ' over';
 
-    // pill
     const pillEl = document.getElementById('erc-pill');
     if (remaining >= 0) {
       pillEl.className = 'pill pill-green';
@@ -534,6 +814,8 @@
 
   /* ---- MODAL ---- */
   let activeId = null, selStatus = null;
+  // Snapshot of team state before editing (for diffing)
+  let beforeSnap = null;
 
   function openModal(id) {
     activeId = id;
@@ -550,6 +832,13 @@
   function checkPw() {
     const t = TEAMS.find(x => x.id === activeId);
     if (document.getElementById('pw').value === t.password) {
+      // Snapshot state before editing
+      beforeSnap = {
+        progress:  t.progress,
+        allocated: t.allocated,
+        used:      t.used,
+        purchases: t.purchases.map(p => ({ ...p }))
+      };
       document.getElementById('s-auth').style.display = 'none';
       document.getElementById('s-edit').style.display = 'block';
       document.getElementById('ep').value = t.progress;
@@ -610,13 +899,21 @@
 
   function saveUpdate() {
     const t = TEAMS.find(x => x.id === activeId);
-    t.progress  = parseInt(document.getElementById('ep').value) || 0;
+
+    const newProgress  = parseInt(document.getElementById('ep').value) || 0;
+    const newAlloc     = parseFloat(document.getElementById('e-alloc').value) || 0;
+    const newUsed      = parseFloat(document.getElementById('e-used').value)  || 0;
+
+    // Read purchases before updating
+    const beforePurchaseCount = beforeSnap ? beforeSnap.purchases.length : t.purchases.length;
+
+    t.progress  = newProgress;
     t.status    = selStatus || t.status;
     t.update    = document.getElementById('eu').value.trim();
     t.blocker   = document.getElementById('eb').value.trim();
-    t.allocated = parseFloat(document.getElementById('e-alloc').value) || 0;
-    t.used      = parseFloat(document.getElementById('e-used').value)  || 0;
-    // read purchases from modal inputs
+    t.allocated = newAlloc;
+    t.used      = newUsed;
+
     t.purchases.forEach((p, i) => {
       const nameEl   = document.getElementById('pm-item-' + i);
       const amtEl    = document.getElementById('pm-amt-' + i);
@@ -626,8 +923,41 @@
       if (statusEl) p.status = statusEl.value;
     });
     t.purchases = t.purchases.filter(p => p.item !== '');
+
     const now = new Date();
     t.timestamp = 'Today, ' + now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+    // Build history diff
+    const changes = [];
+
+    if (beforeSnap) {
+      if (beforeSnap.progress !== newProgress)
+        changes.push({ type: 'progress', oldVal: beforeSnap.progress, newVal: newProgress });
+
+      if (beforeSnap.allocated !== newAlloc)
+        changes.push({ type: 'budget-alloc', oldVal: beforeSnap.allocated, newVal: newAlloc });
+
+      if (beforeSnap.used !== newUsed)
+        changes.push({ type: 'budget-used', oldVal: beforeSnap.used, newVal: newUsed, allocVal: newAlloc });
+
+      const afterCount  = t.purchases.length;
+      const added       = Math.max(0, afterCount - beforePurchaseCount);
+      const removed     = Math.max(0, beforePurchaseCount - afterCount);
+      if (added > 0 || removed > 0)
+        changes.push({ type: 'purchases', added, removed });
+    }
+
+    if (changes.length > 0) {
+      pushHistory({
+        teamName: t.name,
+        initials: t.initials,
+        dot:      t.dot,
+        time:     now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}),
+        changes
+      });
+    }
+
+    beforeSnap = null;
     closeModal();
     renderAll();
     const ab = document.querySelector('.fb.active');
