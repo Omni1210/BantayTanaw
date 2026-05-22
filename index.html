@@ -366,7 +366,7 @@
     sessions[SESSION_KEY] = { ts: Date.now(), role: 'guest', name, team: '—', lastAction: 'Viewing dashboard' };
     localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
     localStorage.setItem('talatanaw_me', JSON.stringify({ key: SESSION_KEY, role: 'guest', name, team: '—' }));
-    window.location.href = 'talatanaw.html';
+    window.location.href = 'dashboard.html';
   }
 
   const TEAM_NAMES = {
@@ -395,7 +395,7 @@
       sessions[SESSION_KEY] = { ts: Date.now(), role: 'member', name: teamName + ' Member', team: teamName, lastAction: 'Logged in' };
       localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
       localStorage.setItem('talatanaw_me', JSON.stringify({ key: SESSION_KEY, role: 'member', name: teamName + ' Member', team: teamName }));
-      window.location.href = 'talatanaw.html';
+      window.location.href = 'dashboard.html';
     } else {
       err.classList.add('show');
       grp.classList.remove('shake');
