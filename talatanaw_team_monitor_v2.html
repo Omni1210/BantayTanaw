@@ -1,0 +1,367 @@
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+.root{font-family:'DM Mono','Courier New',monospace;color:var(--color-text-primary);padding:16px 0}
+.ph{border-bottom:0.5px solid var(--color-border-tertiary);padding-bottom:16px;margin-bottom:20px}
+.pm{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.ptitle{font-size:22px;font-weight:500;display:flex;align-items:center;gap:8px}
+.ptitle i{color:#4ade80;font-size:20px}
+.psub{font-size:11px;color:var(--color-text-tertiary);margin-top:3px;text-transform:uppercase;letter-spacing:0.5px}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.fb{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);font-size:12px;padding:5px 12px;border-radius:20px;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.fb.active,.fb:hover{border-color:var(--color-border-primary);color:var(--color-text-primary)}
+.overview-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+@media(max-width:500px){.overview-grid{grid-template-columns:1fr}}
+.mp{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:16px 18px}
+.mr{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px}
+.ml{font-size:11px;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:0.5px}
+.mpct{font-size:26px;font-weight:500;color:#4ade80}
+.mbb{height:6px;background:var(--color-border-tertiary);border-radius:3px;overflow:hidden;margin-bottom:10px}
+.mbf{height:100%;border-radius:3px;background:#4ade80;transition:width 0.6s ease}
+.tdots{display:flex;gap:12px;flex-wrap:wrap}
+.di{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-tertiary)}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.budget-overview{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:16px 18px}
+.bov-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px}
+.bov-amt{font-size:26px;font-weight:500}
+.bov-sub{font-size:11px;color:var(--color-text-tertiary);margin-bottom:8px}
+.bov-bar-bg{height:6px;background:var(--color-border-tertiary);border-radius:3px;overflow:hidden;margin-bottom:10px}
+.bov-bar-fill{height:100%;border-radius:3px;transition:width 0.6s ease}
+.bov-meta{display:flex;gap:16px;flex-wrap:wrap}
+.bov-item{font-size:11px;color:var(--color-text-tertiary);display:flex;align-items:center;gap:5px}
+.bov-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+@media(max-width:500px){.stats{grid-template-columns:repeat(2,1fr)}}
+.sc{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.sl{font-size:11px;color:var(--color-text-tertiary);margin-bottom:2px;text-transform:uppercase;letter-spacing:0.5px}
+.sn{font-size:22px;font-weight:500}
+.ss{font-size:11px;margin-top:2px}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media(max-width:500px){.cards{grid-template-columns:1fr}}
+.tc{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px;transition:border-color 0.2s}
+.tc.blocked{border-color:rgba(248,113,113,0.3)}
+.tc.at-risk{border-color:rgba(251,146,60,0.3)}
+.tc.hidden{display:none}
+.tc.solo{grid-column:1/-1;max-width:440px;margin:0 auto;width:100%}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cl{display:flex;align-items:center;gap:8px}
+.av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0}
+.tn{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.tl{font-size:11px;color:var(--color-text-tertiary);margin-top:1px}
+.badge{font-size:10px;padding:3px 9px;border-radius:10px;font-weight:500;white-space:nowrap}
+.bg{background:rgba(74,222,128,0.1);color:#16a34a;border:0.5px solid rgba(74,222,128,0.3)}
+.ba{background:rgba(251,146,60,0.1);color:#c2410c;border:0.5px solid rgba(251,146,60,0.3)}
+.br{background:rgba(248,113,113,0.1);color:#b91c1c;border:0.5px solid rgba(248,113,113,0.3)}
+.pr{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;font-size:11px;color:var(--color-text-tertiary)}
+.pb{height:4px;background:var(--color-border-tertiary);border-radius:2px;overflow:hidden;margin-bottom:10px}
+.pf{height:100%;border-radius:2px;transition:width 0.4s}
+.budget-section{margin-bottom:10px}
+.budget-row{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px}
+.budget-nums{display:flex;gap:4px;align-items:baseline}
+.budget-used{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.budget-alloc{font-size:11px;color:var(--color-text-tertiary)}
+.bbar-bg{height:4px;background:var(--color-border-tertiary);border-radius:2px;overflow:hidden;margin-bottom:8px}
+.bbar-fill{height:100%;border-radius:2px;transition:width 0.4s}
+.divider{height:0.5px;background:var(--color-border-tertiary);margin:10px 0}
+.ut{font-size:12px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:4px}
+.bt{font-size:12px;color:#ef4444;line-height:1.6;margin-bottom:4px}
+.cf{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.ts{font-size:10px;color:var(--color-text-tertiary)}
+.ub{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);font-size:11px;padding:5px 12px;border-radius:6px;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.ub:hover{border-color:#4ade80;color:#4ade80}
+.ov{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.6);z-index:100;align-items:flex-start;justify-content:center;padding:16px;min-height:500px}
+.ov.open{display:flex}
+.modal{background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:20px;width:100%;max-width:420px;margin-top:20px}
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.mh h3{font-size:15px;font-weight:500}
+.cb{background:none;border:none;color:var(--color-text-tertiary);font-size:18px;cursor:pointer;line-height:1}
+.cb:hover{color:var(--color-text-secondary)}
+.fg{margin-bottom:14px}
+.flab{font-size:11px;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;display:block}
+.fi{width:100%;background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);color:var(--color-text-primary);font-family:inherit;font-size:13px;padding:8px 10px;outline:none}
+.fi:focus{border-color:var(--color-border-primary)}
+textarea.fi{resize:vertical;min-height:60px}
+.sr{display:flex;align-items:center;gap:10px}
+.sr input[type=range]{flex:1;accent-color:#4ade80;cursor:pointer}
+.sv{font-size:18px;font-weight:500;color:#4ade80;min-width:40px;text-align:right}
+.sp{display:flex;gap:6px}
+.so{flex:1;padding:7px 4px;border-radius:6px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);font-size:11px;text-align:center;cursor:pointer;font-family:inherit;transition:all 0.15s}
+.so:hover{border-color:var(--color-border-primary);color:var(--color-text-primary)}
+.so.sg{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.08);color:#16a34a}
+.so.sa{border-color:rgba(251,146,60,0.4);background:rgba(251,146,60,0.08);color:#c2410c}
+.so.sr2{border-color:rgba(248,113,113,0.4);background:rgba(248,113,113,0.08);color:#b91c1c}
+.input-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ma{display:flex;gap:6px;margin-top:16px;justify-content:flex-end}
+.bcan{background:transparent;border:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);font-size:12px;padding:7px 16px;border-radius:6px;cursor:pointer;font-family:inherit}
+.bcan:hover{border-color:var(--color-border-primary);color:var(--color-text-primary)}
+.bsav{background:rgba(74,222,128,0.1);border:0.5px solid rgba(74,222,128,0.35);color:#16a34a;font-size:12px;padding:7px 16px;border-radius:6px;cursor:pointer;font-family:inherit;font-weight:500}
+.bsav:hover{background:rgba(74,222,128,0.15)}
+.pwerr{font-size:11px;color:#ef4444;margin-top:5px;display:none}
+.c-gr{color:#4ade80}.c-am{color:#fb923c}.c-rd{color:#f87171}.c-gy{color:var(--color-text-secondary)}
+.over-budget{color:#ef4444}
+</style>
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">Talatanaw team monitor with budget tracking per sub-team and overall rover budget</h2>
+<div class="root" style="position:relative">
+
+<div class="ph">
+  <div class="pm">
+    <div>
+      <div class="ptitle"><i class="ti ti-hexagon-letter-t" aria-hidden="true"></i>Talatanaw</div>
+      <div class="psub">Team Monitor &nbsp;·&nbsp; 5 sub-teams &nbsp;·&nbsp; 1 project</div>
+    </div>
+    <div class="filters">
+      <button class="fb active" onclick="filterCards('all',this)" data-filter="all">All</button>
+      <button class="fb" onclick="filterCards('on-track',this)" data-filter="on-track">On track</button>
+      <button class="fb" onclick="filterCards('at-risk',this)" data-filter="at-risk">At risk</button>
+      <button class="fb" onclick="filterCards('blocked',this)" data-filter="blocked">Blocked</button>
+    </div>
+  </div>
+</div>
+
+<div class="overview-grid">
+  <div class="mp">
+    <div class="mr"><span class="ml">Overall progress</span><span class="mpct" id="mpct">0%</span></div>
+    <div class="mbb"><div class="mbf" id="mbar" style="width:0%"></div></div>
+    <div class="tdots" id="tdots"></div>
+  </div>
+  <div class="budget-overview">
+    <div class="bov-row"><span class="ml">Rover budget</span><span class="bov-amt" id="bov-pct">0%</span></div>
+    <div class="bov-sub"><span id="bov-used">₱0</span> used of <span id="bov-total">₱0</span> allocated</div>
+    <div class="bov-bar-bg"><div class="bov-bar-fill" id="bov-bar" style="width:0%;background:#4ade80"></div></div>
+    <div class="bov-meta" id="bov-meta"></div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="sc"><div class="sl">Sub-teams</div><div class="sn c-gy">5</div><div class="ss c-gy">on this project</div></div>
+  <div class="sc"><div class="sl">On track</div><div class="sn c-gr" id="s-on">0</div><div class="ss c-gr">teams healthy</div></div>
+  <div class="sc"><div class="sl">At risk</div><div class="sn c-am" id="s-ar">0</div><div class="ss c-am">needs attention</div></div>
+  <div class="sc"><div class="sl">Blocked</div><div class="sn c-rd" id="s-bl">0</div><div class="ss c-rd">action required</div></div>
+</div>
+
+<div class="cards" id="cards"></div>
+
+<div class="ov" id="modal">
+  <div class="modal">
+    <div class="mh"><h3 id="mtitle">Update</h3><button class="cb" onclick="closeModal()" aria-label="Close"><i class="ti ti-x" aria-hidden="true"></i></button></div>
+    <div id="s-auth">
+      <div class="fg">
+        <label class="flab">Team password</label>
+        <input class="fi" type="password" id="pw" placeholder="Password" />
+        <div class="pwerr" id="pwerr">Incorrect password. Try again.</div>
+      </div>
+      <div class="ma">
+        <button class="bcan" onclick="closeModal()">Cancel</button>
+        <button class="bsav" onclick="checkPw()">Unlock</button>
+      </div>
+    </div>
+    <div id="s-edit" style="display:none">
+      <div class="fg">
+        <label class="flab">Progress</label>
+        <div class="sr"><input type="range" min="0" max="100" step="1" id="ep" oninput="document.getElementById('epv').textContent=this.value+'%'" /><span class="sv" id="epv">0%</span></div>
+      </div>
+      <div class="fg">
+        <label class="flab">Status</label>
+        <div class="sp">
+          <button class="so" data-val="on-track" onclick="pickStatus(this)">On track</button>
+          <button class="so" data-val="at-risk" onclick="pickStatus(this)">At risk</button>
+          <button class="so" data-val="blocked" onclick="pickStatus(this)">Blocked</button>
+        </div>
+      </div>
+      <div class="fg">
+        <div class="input-row">
+          <div>
+            <label class="flab">Budget allocated (₱)</label>
+            <input class="fi" type="number" id="e-alloc" min="0" placeholder="e.g. 5000" />
+          </div>
+          <div>
+            <label class="flab">Budget used (₱)</label>
+            <input class="fi" type="number" id="e-used" min="0" placeholder="e.g. 2500" />
+          </div>
+        </div>
+      </div>
+      <div class="fg">
+        <label class="flab">Update note</label>
+        <textarea class="fi" id="eu" placeholder="What's the latest progress?"></textarea>
+      </div>
+      <div class="fg">
+        <label class="flab">Blocker <span style="color:var(--color-text-tertiary)">(leave blank if none)</span></label>
+        <textarea class="fi" id="eb" placeholder="Any blockers?"></textarea>
+      </div>
+      <div class="ma">
+        <button class="bcan" onclick="closeModal()">Cancel</button>
+        <button class="bsav" onclick="saveUpdate()"><i class="ti ti-check" style="font-size:12px" aria-hidden="true"></i> Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const TEAMS=[
+  {id:'mobility',name:'Mobility',lead:'Gian Crisologo',password:'mobility123',status:'on-track',progress:0,update:'',blocker:'',timestamp:'',dot:'#60a5fa',fill:'#60a5fa',initials:'MO',allocated:0,used:0},
+  {id:'drone',name:'Drone',lead:'John Isaac Olave',password:'drone123',status:'on-track',progress:0,update:'',blocker:'',timestamp:'',dot:'#22d3ee',fill:'#22d3ee',initials:'DR',allocated:0,used:0},
+  {id:'navigation',name:'Navigation',lead:'Roentgen',password:'nav123',status:'on-track',progress:0,update:'',blocker:'',timestamp:'',dot:'#a78bfa',fill:'#a78bfa',initials:'NA',allocated:0,used:0},
+  {id:'arm',name:'Robotic Arm',lead:'Earl Balabag',password:'arm123',status:'on-track',progress:0,update:'',blocker:'',timestamp:'',dot:'#fb923c',fill:'#fb923c',initials:'RA',allocated:0,used:0},
+  {id:'drill',name:'Robotic Drill',lead:'Franz Deo',password:'drill123',status:'on-track',progress:0,update:'',blocker:'',timestamp:'',dot:'#f87171',fill:'#f87171',initials:'RD',allocated:0,used:0}
+];
+
+function fmt(n){return'₱'+Math.round(n).toLocaleString()}
+function bClass(s){return s==='on-track'?'bg':s==='at-risk'?'ba':'br'}
+function bLabel(s){return s==='on-track'?'On track':s==='at-risk'?'At risk':'Blocked'}
+function pColor(s){return s==='on-track'?'#4ade80':s==='at-risk'?'#fb923c':'#f87171'}
+function cardExtra(s){return s==='blocked'?'blocked':s==='at-risk'?'at-risk':''}
+function budgetColor(pct){return pct>100?'#ef4444':pct>80?'#fb923c':'#4ade80'}
+
+function renderAll(){
+  const c=document.getElementById('cards');
+  c.innerHTML='';
+  let tot=0,on=0,ar=0,bl=0,dots=[],totalAlloc=0,totalUsed=0;
+
+  TEAMS.forEach((t,i)=>{
+    tot+=t.progress;
+    if(t.status==='on-track')on++;else if(t.status==='at-risk')ar++;else bl++;
+    totalAlloc+=t.allocated;
+    totalUsed+=t.used;
+    dots.push(`<div class="di"><div class="dot" style="background:${t.dot}"></div><span>${t.name} ${t.progress}%</span></div>`);
+
+    const solo=(i===TEAMS.length-1)&&(TEAMS.length%2!==0);
+    const blk=t.blocker?`<p class="bt"><strong>Blocker:</strong> ${t.blocker}</p>`:'';
+    const ts=t.timestamp?`<span class="ts">${t.timestamp}</span>`:`<span class="ts" style="color:var(--color-border-secondary)">No updates yet</span>`;
+    const bPct=t.allocated>0?Math.min(Math.round((t.used/t.allocated)*100),100):0;
+    const bPctReal=t.allocated>0?Math.round((t.used/t.allocated)*100):0;
+    const bCol=budgetColor(bPctReal);
+    const overClass=bPctReal>100?'over-budget':'';
+    const budgetHTML=`
+      <div class="budget-section">
+        <div class="budget-row">
+          <span><i class="ti ti-coin" style="font-size:12px;vertical-align:-1px;margin-right:3px" aria-hidden="true"></i>Budget</span>
+          <div class="budget-nums">
+            <span class="budget-used ${overClass}">${fmt(t.used)}</span>
+            <span class="budget-alloc">/ ${fmt(t.allocated)}</span>
+            <span style="font-size:11px;color:${bCol};margin-left:4px">${bPctReal}%</span>
+          </div>
+        </div>
+        <div class="bbar-bg"><div class="bbar-fill" style="width:${bPct}%;background:${bCol}"></div></div>
+      </div>`;
+
+    c.insertAdjacentHTML('beforeend',`
+      <div class="tc ${cardExtra(t.status)}${solo?' solo':''}" data-status="${t.status}" id="card-${t.id}">
+        <div class="ch">
+          <div class="cl">
+            <div class="av" style="background:${t.dot}22;color:${t.dot}">${t.initials}</div>
+            <div><div class="tn">${t.name}</div><div class="tl">${t.lead}</div></div>
+          </div>
+          <span class="badge ${bClass(t.status)}">${bLabel(t.status)}</span>
+        </div>
+        <div class="pr"><span>Progress</span><span style="color:${pColor(t.status)}">${t.progress}%</span></div>
+        <div class="pb"><div class="pf" style="width:${t.progress}%;background:${t.fill}"></div></div>
+        <div class="divider"></div>
+        ${budgetHTML}
+        <div class="divider"></div>
+        ${t.update?`<p class="ut"><strong>Update:</strong> ${t.update}</p>`:`<p class="ut" style="color:var(--color-border-primary)">No update posted yet.</p>`}
+        ${blk}
+        <div class="cf">${ts}<button class="ub" onclick="openModal('${t.id}')"><i class="ti ti-edit" style="font-size:11px" aria-hidden="true"></i> Update</button></div>
+      </div>`);
+  });
+
+  const avg=Math.round(tot/TEAMS.length);
+  document.getElementById('mpct').textContent=avg+'%';
+  document.getElementById('mbar').style.width=avg+'%';
+  document.getElementById('tdots').innerHTML=dots.join('');
+  document.getElementById('s-on').textContent=on;
+  document.getElementById('s-ar').textContent=ar;
+  document.getElementById('s-bl').textContent=bl;
+
+  const roverPct=totalAlloc>0?Math.round((totalUsed/totalAlloc)*100):0;
+  const roverPctCapped=Math.min(roverPct,100);
+  const roverCol=budgetColor(roverPct);
+  document.getElementById('bov-pct').textContent=roverPct+'%';
+  document.getElementById('bov-pct').style.color=roverCol;
+  document.getElementById('bov-used').textContent=fmt(totalUsed);
+  document.getElementById('bov-total').textContent=fmt(totalAlloc);
+  document.getElementById('bov-bar').style.width=roverPctCapped+'%';
+  document.getElementById('bov-bar').style.background=roverCol;
+  document.getElementById('bov-meta').innerHTML=TEAMS.map(t=>`<div class="bov-item"><div class="bov-dot" style="background:${t.dot}"></div><span>${t.name} ${fmt(t.used)}</span></div>`).join('');
+}
+
+let activeId=null,selStatus=null;
+
+function openModal(id){
+  activeId=id;
+  const t=TEAMS.find(x=>x.id===id);
+  document.getElementById('mtitle').textContent='Update — '+t.name;
+  document.getElementById('s-auth').style.display='block';
+  document.getElementById('s-edit').style.display='none';
+  document.getElementById('pw').value='';
+  document.getElementById('pwerr').style.display='none';
+  document.getElementById('modal').classList.add('open');
+  setTimeout(()=>document.getElementById('pw').focus(),100);
+}
+
+function checkPw(){
+  const t=TEAMS.find(x=>x.id===activeId);
+  if(document.getElementById('pw').value===t.password){
+    document.getElementById('s-auth').style.display='none';
+    document.getElementById('s-edit').style.display='block';
+    document.getElementById('ep').value=t.progress;
+    document.getElementById('epv').textContent=t.progress+'%';
+    document.getElementById('eu').value=t.update;
+    document.getElementById('eb').value=t.blocker;
+    document.getElementById('e-alloc').value=t.allocated||'';
+    document.getElementById('e-used').value=t.used||'';
+    selStatus=t.status;
+    document.querySelectorAll('.so').forEach(b=>{
+      b.className='so';
+      if(b.dataset.val===t.status)b.classList.add(t.status==='on-track'?'sg':t.status==='at-risk'?'sa':'sr2');
+    });
+  } else {
+    document.getElementById('pwerr').style.display='block';
+    document.getElementById('pw').value='';
+    document.getElementById('pw').focus();
+  }
+}
+
+function pickStatus(btn){
+  selStatus=btn.dataset.val;
+  document.querySelectorAll('.so').forEach(b=>b.className='so');
+  btn.classList.add(selStatus==='on-track'?'sg':selStatus==='at-risk'?'sa':'sr2');
+}
+
+function saveUpdate(){
+  const t=TEAMS.find(x=>x.id===activeId);
+  t.progress=parseInt(document.getElementById('ep').value);
+  t.status=selStatus||t.status;
+  t.update=document.getElementById('eu').value.trim();
+  t.blocker=document.getElementById('eb').value.trim();
+  t.allocated=parseFloat(document.getElementById('e-alloc').value)||0;
+  t.used=parseFloat(document.getElementById('e-used').value)||0;
+  const now=new Date();
+  t.timestamp='Today, '+now.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  closeModal();renderAll();
+  const ab=document.querySelector('.fb.active');
+  if(ab)applyFilter(ab.dataset.filter||'all');
+}
+
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+
+function filterCards(status,btn){
+  document.querySelectorAll('.fb').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');btn.dataset.filter=status;
+  applyFilter(status);
+}
+function applyFilter(status){
+  document.querySelectorAll('.tc').forEach(card=>{
+    card.classList.toggle('hidden',status!=='all'&&card.dataset.status!==status);
+  });
+}
+
+document.getElementById('modal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('modal'))closeModal();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')closeModal();
+  if(e.key==='Enter'&&document.getElementById('s-auth').style.display!=='none')checkPw();
+});
+renderAll();
+</script>
