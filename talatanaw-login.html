@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Talatanaw — Welcome</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0a0a0a;
+      font-family: 'DM Mono', 'Courier New', monospace;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #neural-bg { position: fixed; inset: 0; z-index: 0; }
+    .vignette {
+      position: fixed; inset: 0; z-index: 1;
+      background: radial-gradient(ellipse at center, transparent 20%, #0a0a0a 90%);
+      pointer-events: none;
+    }
+
+    /* LIVE COUNT BADGE */
+    .live-badge {
+      position: fixed; top: 20px; right: 20px; z-index: 50;
+      background: rgba(18,18,18,0.85);
+      border: 1px solid #2a2a2a;
+      border-radius: 20px;
+      padding: 6px 14px;
+      display: flex; align-items: center; gap: 7px;
+      font-size: 12px; color: #aaa;
+      backdrop-filter: blur(12px);
+    }
+    .live-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #4ade80;
+      animation: lpulse 1.8s infinite;
+    }
+    @keyframes lpulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.85)} }
+
+    /* WRAP */
+    .wrap {
+      position: relative; z-index: 10;
+      width: 100%; max-width: 420px;
+      padding: 0 20px;
+    }
+
+    /* BRAND */
+    .brand {
+      text-align: center; margin-bottom: 32px;
+    }
+    .brand-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: #0a2a1a; border: 1px solid #1a4a2a;
+      display: flex; align-items: center; justify-content: center;
+      color: #4ade80; font-size: 24px;
+      margin: 0 auto 12px;
+    }
+    .brand-name { font-size: 26px; font-weight: 700; color: #f0f0f0; }
+    .brand-sub  { font-size: 11px; color: #444; text-transform: uppercase; letter-spacing: 0.6px; margin-top: 4px; }
+
+    /* CHOICE CARDS */
+    .choice-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+      margin-bottom: 20px;
+    }
+    .choice-card {
+      background: rgba(18,18,18,0.82);
+      border: 1px solid #2a2a2a;
+      border-radius: 14px;
+      padding: 20px 16px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      text-align: center;
+      backdrop-filter: blur(16px);
+    }
+    .choice-card:hover { background: rgba(26,26,26,0.9); border-color: #444; }
+    .choice-card.selected-guest  { border-color: #60a5fa; background: rgba(10,20,40,0.9); }
+    .choice-card.selected-member { border-color: #4ade80; background: rgba(10,30,20,0.9); }
+    .choice-icon {
+      font-size: 26px; margin-bottom: 8px;
+      display: block;
+    }
+    .choice-card.selected-guest  .choice-icon { color: #60a5fa; }
+    .choice-card.selected-member .choice-icon { color: #4ade80; }
+    .choice-card:not(.selected-guest):not(.selected-member) .choice-icon { color: #555; }
+    .choice-title { font-size: 14px; font-weight: 700; color: #e0e0e0; margin-bottom: 4px; }
+    .choice-desc  { font-size: 10px; color: #555; line-height: 1.5; }
+
+    /* FORM PANEL */
+    .form-panel {
+      background: rgba(18,18,18,0.82);
+      border: 1px solid #2a2a2a;
+      border-radius: 14px;
+      padding: 22px 22px 20px;
+      backdrop-filter: blur(16px);
+      display: none;
+    }
+    .form-panel.visible { display: block; }
+
+    .fp-label {
+      font-size: 11px; color: #555;
+      text-transform: uppercase; letter-spacing: 0.6px;
+      margin-bottom: 5px; display: block;
+    }
+    .form-group { margin-bottom: 14px; position: relative; }
+    .form-input, .form-select {
+      width: 100%;
+      background: #111;
+      border: 1px solid #2a2a2a;
+      border-radius: 9px;
+      color: #e0e0e0;
+      font-family: inherit;
+      font-size: 13px;
+      padding: 10px 12px 10px 38px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: #1a4a2a;
+      box-shadow: 0 0 0 3px rgba(74,222,128,0.07);
+    }
+    .form-input::placeholder { color: #333; }
+    .input-icon {
+      position: absolute; left: 11px; top: 50%;
+      transform: translateY(-50%);
+      color: #444; font-size: 15px; pointer-events: none;
+    }
+    .select-chevron {
+      position: absolute; right: 11px; top: 50%;
+      transform: translateY(-50%);
+      color: #444; font-size: 14px; pointer-events: none;
+    }
+
+    /* Guest name field */
+    .guest-name-row { display: flex; gap: 10px; }
+
+    .err-msg {
+      font-size: 11px; color: #f87171; margin-top: 6px;
+      display: none; align-items: center; gap: 5px;
+    }
+    .err-msg.show { display: flex; }
+
+    /* Buttons */
+    .btn-enter {
+      width: 100%;
+      border: 1px solid #1a4a2a;
+      background: #0a2a1a;
+      color: #4ade80;
+      font-family: inherit; font-size: 13px; font-weight: 700;
+      padding: 11px; border-radius: 9px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      transition: background 0.15s, transform 0.1s;
+      margin-top: 6px;
+    }
+    .btn-enter:hover { background: #0f3a22; }
+    .btn-enter:active { transform: scale(0.98); }
+    .btn-enter.guest-mode {
+      border-color: #1a2a5a; background: #0a1a3a; color: #60a5fa;
+    }
+    .btn-enter.guest-mode:hover { background: #0f2245; }
+
+    .footer-note {
+      text-align: center; font-size: 10px; color: #2a2a2a;
+      margin-top: 18px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    @keyframes shake {
+      0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)}
+      40%{transform:translateX(7px)}   60%{transform:translateX(-5px)}
+      80%{transform:translateX(5px)}
+    }
+    .shake { animation: shake 0.35s ease; }
+  </style>
+</head>
+<body>
+<canvas id="neural-bg"></canvas>
+<div class="vignette"></div>
+
+<!-- Live count -->
+<div class="live-badge">
+  <div class="live-dot"></div>
+  <span id="live-count">1</span> viewing now
+</div>
+
+<div class="wrap">
+
+  <!-- Brand -->
+  <div class="brand">
+    <div class="brand-icon"><i class="ti ti-hexagon-letter-t" aria-hidden="true"></i></div>
+    <div class="brand-name">Talatanaw</div>
+    <div class="brand-sub">Team Monitor &nbsp;·&nbsp; Rover Project</div>
+  </div>
+
+  <!-- Choice cards -->
+  <div class="choice-row">
+    <div class="choice-card" id="card-guest" onclick="selectRole('guest')">
+      <i class="ti ti-eye choice-icon" aria-hidden="true"></i>
+      <div class="choice-title">Guest</div>
+      <div class="choice-desc">View-only access.<br>No editing allowed.</div>
+    </div>
+    <div class="choice-card" id="card-member" onclick="selectRole('member')">
+      <i class="ti ti-shield-check choice-icon" aria-hidden="true"></i>
+      <div class="choice-title">Member</div>
+      <div class="choice-desc">Full access.<br>View &amp; edit teams.</div>
+    </div>
+  </div>
+
+  <!-- Guest form -->
+  <div class="form-panel" id="panel-guest">
+    <div class="form-group">
+      <label class="fp-label">Your name (optional)</label>
+      <i class="ti ti-user input-icon" aria-hidden="true"></i>
+      <input class="form-input" type="text" id="guest-name" placeholder="e.g. Juan dela Cruz" />
+    </div>
+    <button class="btn-enter guest-mode" onclick="enterGuest()">
+      <i class="ti ti-eye" style="font-size:14px" aria-hidden="true"></i>
+      View Dashboard
+    </button>
+  </div>
+
+  <!-- Member form -->
+  <div class="form-panel" id="panel-member">
+    <div class="form-group">
+      <label class="fp-label">Team</label>
+      <i class="ti ti-users input-icon" aria-hidden="true"></i>
+      <select class="form-select" id="team-select">
+        <option value="">Select your team...</option>
+        <option value="mobility123">Mobility</option>
+        <option value="drone123">Drone</option>
+        <option value="nav123">Navigation</option>
+        <option value="arm123">Robotic Arm</option>
+        <option value="drill123">Robotic Drill</option>
+      </select>
+      <i class="ti ti-chevron-down select-chevron" aria-hidden="true"></i>
+    </div>
+    <div class="form-group" id="pw-group">
+      <label class="fp-label">Team Password</label>
+      <i class="ti ti-lock input-icon" aria-hidden="true"></i>
+      <input class="form-input" type="password" id="pw-input" placeholder="Enter password" />
+      <div class="err-msg" id="err-msg">
+        <i class="ti ti-alert-circle" style="font-size:13px" aria-hidden="true"></i>
+        Incorrect password. Try again.
+      </div>
+    </div>
+    <button class="btn-enter" onclick="enterMember()">
+      <i class="ti ti-arrow-right" style="font-size:14px" aria-hidden="true"></i>
+      Enter Dashboard
+    </button>
+  </div>
+
+  <div class="footer-note">Rover Project &nbsp;·&nbsp; ERC Funded</div>
+</div>
+
+<script>
+  /* ---- NEURAL NET ---- */
+  const canvas = document.getElementById('neural-bg');
+  const ctx = canvas.getContext('2d');
+  let W, H, nodes = [];
+  const COUNT = 80, MAX_DIST = 160, SPEED = 0.35;
+
+  function resize() { W = canvas.width = innerWidth; H = canvas.height = innerHeight; }
+  function initNodes() {
+    nodes = Array.from({length: COUNT}, () => ({
+      x: Math.random()*W, y: Math.random()*H,
+      vx: (Math.random()-.5)*SPEED, vy: (Math.random()-.5)*SPEED,
+      pulse: Math.random()*Math.PI*2
+    }));
+  }
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    nodes.forEach(n => {
+      n.x += n.vx; n.y += n.vy; n.pulse += 0.02;
+      if(n.x<0||n.x>W) n.vx*=-1;
+      if(n.y<0||n.y>H) n.vy*=-1;
+    });
+    for(let i=0;i<nodes.length;i++) for(let j=i+1;j<nodes.length;j++) {
+      const dx=nodes[i].x-nodes[j].x, dy=nodes[i].y-nodes[j].y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<MAX_DIST) {
+        ctx.beginPath();
+        ctx.strokeStyle=`rgba(74,222,128,${(1-d/MAX_DIST)*0.18})`;
+        ctx.lineWidth=0.8;
+        ctx.moveTo(nodes[i].x,nodes[i].y);
+        ctx.lineTo(nodes[j].x,nodes[j].y);
+        ctx.stroke();
+      }
+    }
+    nodes.forEach(n => {
+      const g=0.5+0.5*Math.sin(n.pulse);
+      ctx.beginPath();
+      ctx.arc(n.x,n.y,2.2*(0.7+g*0.4),0,Math.PI*2);
+      ctx.fillStyle=`rgba(74,222,128,${0.25+g*0.55})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  resize(); initNodes(); draw();
+  window.addEventListener('resize', resize);
+  window.addEventListener('mousemove', e => {
+    nodes.forEach(n => {
+      const dx=n.x-e.clientX, dy=n.y-e.clientY;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<100) {
+        const f=(100-d)/100*0.4;
+        n.vx+=(dx/d)*f; n.vy+=(dy/d)*f;
+        const spd=Math.sqrt(n.vx*n.vx+n.vy*n.vy);
+        if(spd>1.8){n.vx=(n.vx/spd)*1.8;n.vy=(n.vy/spd)*1.8;}
+      }
+    });
+  });
+
+  /* ---- LIVE COUNT via localStorage ---- */
+  const SESSION_KEY = 'talatanaw_session_' + Math.random().toString(36).slice(2);
+  const SESSIONS_KEY = 'talatanaw_active_sessions';
+  const HEARTBEAT_MS = 3000;
+  const EXPIRE_MS    = 8000;
+
+  function heartbeat() {
+    const now = Date.now();
+    let sessions = {};
+    try { sessions = JSON.parse(localStorage.getItem(SESSIONS_KEY) || '{}'); } catch(e){}
+    // prune stale
+    Object.keys(sessions).forEach(k => { if(now - sessions[k].ts > EXPIRE_MS) delete sessions[k]; });
+    sessions[SESSION_KEY] = { ts: now, role: 'landing' };
+    localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+    document.getElementById('live-count').textContent = Object.keys(sessions).length;
+  }
+  heartbeat();
+  setInterval(heartbeat, HEARTBEAT_MS);
+  window.addEventListener('storage', heartbeat);
+  window.addEventListener('beforeunload', () => {
+    let sessions = {};
+    try { sessions = JSON.parse(localStorage.getItem(SESSIONS_KEY)||'{}'); } catch(e){}
+    delete sessions[SESSION_KEY];
+    localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+  });
+
+  /* ---- ROLE SELECTION ---- */
+  let selectedRole = null;
+
+  function selectRole(role) {
+    selectedRole = role;
+    document.getElementById('card-guest').classList.remove('selected-guest','selected-member');
+    document.getElementById('card-member').classList.remove('selected-guest','selected-member');
+    document.getElementById('panel-guest').classList.remove('visible');
+    document.getElementById('panel-member').classList.remove('visible');
+    if(role === 'guest') {
+      document.getElementById('card-guest').classList.add('selected-guest');
+      document.getElementById('panel-guest').classList.add('visible');
+    } else {
+      document.getElementById('card-member').classList.add('selected-member');
+      document.getElementById('panel-member').classList.add('visible');
+    }
+  }
+
+  function enterGuest() {
+    const name = document.getElementById('guest-name').value.trim() || 'Guest';
+    // Store session info
+    let sessions = {};
+    try { sessions = JSON.parse(localStorage.getItem(SESSIONS_KEY)||'{}'); } catch(e){}
+    sessions[SESSION_KEY] = { ts: Date.now(), role: 'guest', name, team: '—', lastAction: 'Viewing dashboard' };
+    localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+    localStorage.setItem('talatanaw_me', JSON.stringify({ key: SESSION_KEY, role: 'guest', name, team: '—' }));
+    window.location.href = 'talatanaw.html';
+  }
+
+  const TEAM_NAMES = {
+    'mobility123': 'Mobility',
+    'drone123':    'Drone',
+    'nav123':      'Navigation',
+    'arm123':      'Robotic Arm',
+    'drill123':    'Robotic Drill'
+  };
+
+  function enterMember() {
+    const sel = document.getElementById('team-select');
+    const pw  = document.getElementById('pw-input').value.trim();
+    const err = document.getElementById('err-msg');
+    const grp = document.getElementById('pw-group');
+    err.classList.remove('show');
+
+    if(!sel.value) {
+      sel.style.borderColor='#4a1a1a';
+      setTimeout(()=>sel.style.borderColor='',1000); return;
+    }
+    if(pw === sel.value) {
+      const teamName = TEAM_NAMES[sel.value];
+      let sessions = {};
+      try { sessions = JSON.parse(localStorage.getItem(SESSIONS_KEY)||'{}'); } catch(e){}
+      sessions[SESSION_KEY] = { ts: Date.now(), role: 'member', name: teamName + ' Member', team: teamName, lastAction: 'Logged in' };
+      localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+      localStorage.setItem('talatanaw_me', JSON.stringify({ key: SESSION_KEY, role: 'member', name: teamName + ' Member', team: teamName }));
+      window.location.href = 'talatanaw.html';
+    } else {
+      err.classList.add('show');
+      grp.classList.remove('shake');
+      void grp.offsetWidth;
+      grp.classList.add('shake');
+      document.getElementById('pw-input').value = '';
+    }
+  }
+
+  document.addEventListener('keydown', e => {
+    if(e.key==='Enter') { if(selectedRole==='guest') enterGuest(); else if(selectedRole==='member') enterMember(); }
+  });
+</script>
+</body>
+</html>
