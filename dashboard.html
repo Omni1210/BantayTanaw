@@ -401,7 +401,7 @@
 <!-- FIREBASE -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, set, onValue, push, remove, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getDatabase, ref, set, onValue, push, remove, get, onDisconnect, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAgR2GBjSMMdIZriJ3e0YNF4NY7YzfoFjY",
@@ -435,8 +435,7 @@
   window.addEventListener('mousemove', e => { nodes.forEach(n => { const dx=n.x-e.clientX,dy=n.y-e.clientY,d=Math.sqrt(dx*dx+dy*dy); if(d<100){const f=(100-d)/100*0.4;n.vx+=(dx/d)*f;n.vy+=(dy/d)*f;const spd=Math.sqrt(n.vx*n.vx+n.vy*n.vy);if(spd>1.8){n.vx=(n.vx/spd)*1.8;n.vy=(n.vy/spd)*1.8;}} }); });
 
   /* ---- SESSION / ROLE ---- */
-  const SESSION_KEY = 'talatanaw_active_sessions';
-  const HEARTBEAT_MS = 3000, EXPIRE_MS = 8000;
+  const HEARTBEAT_MS = 5000;
   let ME = { key: null, role: 'guest', name: 'Guest', team: '—' };
   try { const raw = localStorage.getItem('talatanaw_me'); if(raw) ME = JSON.parse(raw); } catch(e){}
   const isGuest = ME.role === 'guest';
@@ -447,18 +446,29 @@
     : `<div class="role-chip rc-member"><i class="ti ti-shield-check" style="font-size:11px"></i>${ME.name} · ${ME.team}</div>`;
   if(isGuest) document.getElementById('guest-banner').style.display = 'flex';
 
+  // Firebase Presence — real cross-device live viewer count
+  const sessionId = ME.key || ('s_' + Math.random().toString(36).slice(2));
+  const presenceRef = ref(db, 'presence/' + sessionId);
+  const presenceData = { role: ME.role, name: ME.name, team: ME.team, ts: Date.now() };
+
+  // Write presence, auto-remove on disconnect
+  set(presenceRef, presenceData);
+  onDisconnect(presenceRef).remove();
+
+  // Keep presence alive
+  setInterval(() => set(presenceRef, { ...presenceData, ts: Date.now() }), HEARTBEAT_MS);
+
+  // Listen to all presence and update counter
+  const allPresenceRef = ref(db, 'presence');
+  onValue(allPresenceRef, (snapshot) => {
+    const data = snapshot.val();
+    const count = data ? Object.keys(data).length : 1;
+    document.getElementById('live-count').textContent = count;
+  });
+
   function heartbeat(lastAction) {
-    const now = Date.now();
-    let sessions = {};
-    try { sessions = JSON.parse(localStorage.getItem(SESSION_KEY)||'{}'); } catch(e){}
-    Object.keys(sessions).forEach(k=>{ if(now-sessions[k].ts>EXPIRE_MS) delete sessions[k]; });
-    if(ME.key) { sessions[ME.key]={ts:now,role:ME.role,name:ME.name,team:ME.team,lastAction:lastAction||sessions[ME.key]?.lastAction||'Viewing dashboard'}; localStorage.setItem(SESSION_KEY,JSON.stringify(sessions)); }
-    document.getElementById('live-count').textContent=Object.keys(sessions).length;
+    // kept for saveUpdate call compatibility — presence is handled above
   }
-  heartbeat();
-  setInterval(heartbeat, HEARTBEAT_MS);
-  window.addEventListener('storage', ()=>{ let s={};try{s=JSON.parse(localStorage.getItem(SESSION_KEY)||'{}')}catch(e){}const now=Date.now();document.getElementById('live-count').textContent=Object.keys(s).filter(k=>now-s[k].ts<EXPIRE_MS).length; });
-  window.addEventListener('beforeunload', ()=>{ let s={};try{s=JSON.parse(localStorage.getItem(SESSION_KEY)||'{}')}catch(e){}delete s[ME.key];localStorage.setItem(SESSION_KEY,JSON.stringify(s)); });
 
   /* ---- TEAM DEFAULTS ---- */
   const TEAM_DEFAULTS = [
