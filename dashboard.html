@@ -401,7 +401,7 @@
 <!-- FIREBASE -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, set, onValue, push, remove, get, onDisconnect } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getDatabase, ref, set, onValue, push, remove, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAgR2GBjSMMdIZriJ3e0YNF4NY7YzfoFjY",
@@ -435,6 +435,8 @@
   window.addEventListener('mousemove', e => { nodes.forEach(n => { const dx=n.x-e.clientX,dy=n.y-e.clientY,d=Math.sqrt(dx*dx+dy*dy); if(d<100){const f=(100-d)/100*0.4;n.vx+=(dx/d)*f;n.vy+=(dy/d)*f;const spd=Math.sqrt(n.vx*n.vx+n.vy*n.vy);if(spd>1.8){n.vx=(n.vx/spd)*1.8;n.vy=(n.vy/spd)*1.8;}} }); });
 
   /* ---- SESSION / ROLE ---- */
+  const SESSION_KEY = 'talatanaw_active_sessions';
+  const HEARTBEAT_MS = 3000, EXPIRE_MS = 8000;
   let ME = { key: null, role: 'guest', name: 'Guest', team: '—' };
   try { const raw = localStorage.getItem('talatanaw_me'); if(raw) ME = JSON.parse(raw); } catch(e){}
   const isGuest = ME.role === 'guest';
@@ -445,41 +447,18 @@
     : `<div class="role-chip rc-member"><i class="ti ti-shield-check" style="font-size:11px"></i>${ME.name} · ${ME.team}</div>`;
   if(isGuest) document.getElementById('guest-banner').style.display = 'flex';
 
-  // Generate a unique session key for this tab
-  const mySessionKey = ME.key || ('sess_' + Math.random().toString(36).slice(2));
-  const myPresenceRef = ref(db, 'presence/' + mySessionKey);
-
-  // Write presence to Firebase; auto-delete on disconnect
-  async function registerPresence(lastAction) {
-    const presenceData = {
-      ts: Date.now(),
-      role: ME.role,
-      name: ME.name,
-      team: ME.team,
-      lastAction: lastAction || 'Viewing dashboard'
-    };
-    await set(myPresenceRef, presenceData);
-    // Firebase removes this node automatically when the tab closes
-    await onDisconnect(myPresenceRef).remove();
-  }
-  registerPresence();
-
-  // Refresh presence every 30s so it stays alive
-  setInterval(() => registerPresence(), 30000);
-
-  // Listen to all presence nodes → update live count
-  const presenceRef = ref(db, 'presence');
-  onValue(presenceRef, (snap) => {
-    const data = snap.val() || {};
-    const now = Date.now();
-    // Count sessions active in last 60s (covers tab crashes that miss onDisconnect)
-    const count = Object.values(data).filter(s => now - s.ts < 60000).length;
-    document.getElementById('live-count').textContent = count || 1;
-  });
-
   function heartbeat(lastAction) {
-    registerPresence(lastAction);
+    const now = Date.now();
+    let sessions = {};
+    try { sessions = JSON.parse(localStorage.getItem(SESSION_KEY)||'{}'); } catch(e){}
+    Object.keys(sessions).forEach(k=>{ if(now-sessions[k].ts>EXPIRE_MS) delete sessions[k]; });
+    if(ME.key) { sessions[ME.key]={ts:now,role:ME.role,name:ME.name,team:ME.team,lastAction:lastAction||sessions[ME.key]?.lastAction||'Viewing dashboard'}; localStorage.setItem(SESSION_KEY,JSON.stringify(sessions)); }
+    document.getElementById('live-count').textContent=Object.keys(sessions).length;
   }
+  heartbeat();
+  setInterval(heartbeat, HEARTBEAT_MS);
+  window.addEventListener('storage', ()=>{ let s={};try{s=JSON.parse(localStorage.getItem(SESSION_KEY)||'{}')}catch(e){}const now=Date.now();document.getElementById('live-count').textContent=Object.keys(s).filter(k=>now-s[k].ts<EXPIRE_MS).length; });
+  window.addEventListener('beforeunload', ()=>{ let s={};try{s=JSON.parse(localStorage.getItem(SESSION_KEY)||'{}')}catch(e){}delete s[ME.key];localStorage.setItem(SESSION_KEY,JSON.stringify(s)); });
 
   /* ---- TEAM DEFAULTS ---- */
   const TEAM_DEFAULTS = [
@@ -732,10 +711,6 @@
       if(added>0||removed>0) changes.push({type:'purchases',added,removed});
     }
 
-    // Convert purchases array to object for Firebase (arrays get mangled)
-    const purchasesObj = {};
-    cleanPurchases.forEach((p, i) => { purchasesObj['p' + i] = p; });
-
     // Save team data to Firebase
     const teamData = {
       status: selStatus||t.status,
@@ -745,7 +720,7 @@
       allocated: newAlloc,
       used: newUsed,
       timestamp,
-      purchases: cleanPurchases.length > 0 ? purchasesObj : null
+      purchases: cleanPurchases
     };
 
     try {
