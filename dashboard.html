@@ -373,8 +373,8 @@
   <!-- GUEST BANNER -->
   <div class="guest-banner" id="guest-banner" style="display:none">
     <i class="ti ti-eye"></i>
-    Viewing as <strong>&nbsp;Guest&nbsp;</strong> — read-only.
-    &nbsp;<a href="index.html" style="color:#60a5fa;text-decoration:underline;font-size:10px">Switch to Member</a>
+    <span id="guest-banner-text">Viewing as <strong>&nbsp;Guest&nbsp;</strong> — read-only.
+    &nbsp;<a href="index.html" style="color:#60a5fa;text-decoration:underline;font-size:10px">Sign in</a></span>
   </div>
 
   <!-- NEEDS ATTENTION -->
@@ -555,14 +555,24 @@
 
   /* ─── SESSION ─── */
   const HEARTBEAT_MS = 5000;
-  let ME = {key:null,role:'guest',name:'Guest',team:'—'};
+  let ME = {key:null,role:'guest',name:'Guest',team:'—',email:'',pendingMember:false};
   try{const r=localStorage.getItem('talatanaw_me');if(r)ME=JSON.parse(r);}catch(e){}
   const isGuest = ME.role==='guest';
 
   document.getElementById('role-chip').innerHTML = isGuest
     ? `<div class="role-chip rc-guest"><i class="ti ti-eye" style="font-size:10px"></i>${ME.name}</div>`
     : `<div class="role-chip rc-member"><i class="ti ti-shield-check" style="font-size:10px"></i>${ME.name} · ${ME.team}</div>`;
-  if(isGuest) document.getElementById('guest-banner').style.display='flex';
+
+  if(isGuest) {
+    const banner = document.getElementById('guest-banner');
+    banner.style.display='flex';
+    if(ME.pendingMember) {
+      document.getElementById('guest-banner-text').innerHTML =
+        `<i class="ti ti-clock" style="font-size:12px;vertical-align:-2px;margin-right:4px"></i>` +
+        `<strong>${ME.name}</strong> — Pending admin approval. View-only until approved. ` +
+        `<a href="index.html" style="color:#60a5fa;text-decoration:underline;font-size:10px">Back</a>`;
+    }
+  }
 
   /* ─── SYNC INDICATOR ─── */
   let lastSyncTs = null;
@@ -584,9 +594,10 @@
   /* ─── PRESENCE ─── */
   const sessionId = ME.key || ('s_'+Math.random().toString(36).slice(2));
   const presenceRef = ref(db,'presence/'+sessionId);
-  set(presenceRef,{role:ME.role,name:ME.name,team:ME.team,ts:Date.now()});
+  const presenceData = {role:ME.role,name:ME.name,team:ME.team,ts:Date.now(),email:ME.email||'',pendingMember:ME.pendingMember||false};
+  set(presenceRef, presenceData);
   onDisconnect(presenceRef).remove();
-  setInterval(()=>set(presenceRef,{role:ME.role,name:ME.name,team:ME.team,ts:Date.now()}), HEARTBEAT_MS);
+  setInterval(()=>set(presenceRef,{...presenceData,ts:Date.now()}), HEARTBEAT_MS);
   onValue(ref(db,'presence'),snap=>{
     const d=snap.val();
     document.getElementById('live-count').textContent=d?Object.keys(d).length:1;
