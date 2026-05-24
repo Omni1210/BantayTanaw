@@ -54,6 +54,11 @@
     .kb-hint { font-size: 10px; color: #333; padding: 4px 9px; border: 1px solid #222; border-radius: 6px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 5px; }
     .kb-hint:hover { border-color: #444; color: #666; }
 
+    /* ADMIN BUTTON */
+    .admin-btn { font-size: 10px; padding: 4px 11px; border-radius: 20px; font-weight: 700; display: flex; align-items: center; gap: 5px; background: #1a0808; color: #f87171; border: 1px solid #3d1a1a; cursor: pointer; transition: all 0.15s; font-family: inherit; white-space: nowrap; }
+    .admin-btn:hover { background: #2a0a0a; border-color: #4a1a1a; }
+    .admin-btn i { font-size: 11px; }
+
     .filters { display: flex; gap: 6px; flex-wrap: wrap; }
     .fb { background: #1e1e1e; border: 1px solid #333; color: #aaa; font-size: 11px; padding: 4px 12px; border-radius: 20px; cursor: pointer; transition: all 0.15s; font-family: inherit; }
     .fb.active, .fb:hover { background: #2a2a2a; border-color: #555; color: #f0f0f0; }
@@ -350,6 +355,9 @@
       <div class="sync-badge" id="sync-badge"><div class="sync-dot"></div><span id="sync-text">Connecting...</span></div>
       <div class="live-badge"><div class="live-dot"></div><span id="live-count">1</span> viewing</div>
       <div id="role-chip"></div>
+      <button class="admin-btn" onclick="window.location.href='admin.html'" title="Admin Panel">
+        <i class="ti ti-shield-lock"></i> Admin
+      </button>
       <button class="kb-hint" onclick="openKb()" title="Keyboard shortcuts">
         <i class="ti ti-keyboard" style="font-size:12px"></i> ?
       </button>
