@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Talatanaw — Admin</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0a0a0a; color: #e0e0e0; font-family: 'DM Mono','Courier New',monospace; min-height: 100vh; padding: 0; position: relative; overflow-x: hidden; }
+    #neural-bg { position: fixed; inset: 0; z-index: 0; }
+    .vignette { position: fixed; inset: 0; z-index: 1; background: radial-gradient(ellipse at center, transparent 20%, #0a0a0a 90%); pointer-events: none; }
+
+    /* LOCK SCREEN */
+    .lock-screen { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .lock-screen.hidden { display: none; }
+    .lock-box { position: relative; z-index: 10; background: rgba(18,18,18,0.9); border: 1px solid #2a2a2a; border-radius: 16px; padding: 28px; width: 100%; max-width: 380px; backdrop-filter: blur(20px); text-align: center; }
+    .lock-icon { width: 52px; height: 52px; border-radius: 14px; background: #1a0a0a; border: 1px solid #3d1a1a; display: flex; align-items: center; justify-content: center; color: #f87171; font-size: 24px; margin: 0 auto 16px; }
+    .lock-title { font-size: 20px; font-weight: 700; color: #f0f0f0; margin-bottom: 4px; }
+    .lock-sub { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 24px; }
+    .lock-input { width: 100%; background: #111; border: 1px solid #2a2a2a; border-radius: 9px; color: #e0e0e0; font-family: inherit; font-size: 13px; padding: 10px 14px; outline: none; text-align: center; letter-spacing: 2px; transition: border-color 0.2s; margin-bottom: 8px; }
+    .lock-input:focus { border-color: #444; }
+    .lock-btn { width: 100%; background: #1a0a0a; border: 1px solid #3d1a1a; color: #f87171; font-family: inherit; font-size: 13px; font-weight: 700; padding: 11px; border-radius: 9px; cursor: pointer; transition: all 0.15s; margin-top: 4px; }
+    .lock-btn:hover { background: #2a0a0a; }
+    .lock-err { font-size: 11px; color: #f87171; margin-top: 8px; display: none; }
+    .lock-err.show { display: block; }
+    .lock-back { font-size: 10px; color: #444; text-decoration: none; display: block; margin-top: 14px; cursor: pointer; transition: color 0.15s; }
+    .lock-back:hover { color: #888; }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)} }
+    .shake { animation: shake 0.35s ease; }
+
+    /* ADMIN APP */
+    .admin-app { display: none; min-height: 100vh; padding: 20px 16px; position: relative; z-index: 10; }
+    .admin-app.visible { display: block; }
+    .root { max-width: 1200px; margin: 0 auto; }
+
+    /* HEADER */
+    .ph { border-bottom: 1px solid #222; padding-bottom: 14px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .ptitle { font-size: 22px; font-weight: 700; color: #f0f0f0; display: flex; align-items: center; gap: 10px; }
+    .ptitle i { color: #f87171; font-size: 18px; }
+    .psub { font-size: 10px; color: #555; margin-top: 2px; letter-spacing: 0.5px; text-transform: uppercase; }
+    .ph-right { display: flex; align-items: center; gap: 8px; }
+    .back-btn { background: #1a1a1a; border: 1px solid #2a2a2a; color: #aaa; font-size: 11px; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-family: inherit; text-decoration: none; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
+    .back-btn:hover { border-color: #444; color: #f0f0f0; }
+    .admin-chip { font-size: 10px; padding: 4px 11px; border-radius: 20px; font-weight: 700; display: flex; align-items: center; gap: 5px; background: #1a0808; color: #f87171; border: 1px solid #3d1a1a; }
+
+    /* GRID */
+    .admin-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    @media(max-width: 900px) { .admin-grid { grid-template-columns: 1fr; } }
+    .admin-grid.full { grid-template-columns: 1fr; }
+
+    /* CARDS */
+    .acard { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 18px; }
+    .acard-title { font-size: 13px; font-weight: 700; color: #ccc; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .acard-title i { font-size: 15px; }
+    .acard-title .badge-admin { font-size: 9px; padding: 2px 7px; border-radius: 5px; font-weight: 600; margin-left: auto; }
+    .ba-red   { background: #2a0a0a; color: #f87171; border: 1px solid #4a1a1a; }
+    .ba-green { background: #0a2a1a; color: #4ade80; border: 1px solid #1a4a2a; }
+    .ba-blue  { background: #0a1a3a; color: #60a5fa; border: 1px solid #1a2a5a; }
+    .ba-amber { background: #2a1a05; color: #fb923c; border: 1px solid #4a2a10; }
+
+    /* FORM ELEMENTS */
+    .fg { margin-bottom: 12px; }
+    .flab { font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; display: block; }
+    .fi { width: 100%; background: #111; border: 1px solid #2a2a2a; border-radius: 7px; color: #e0e0e0; font-family: inherit; font-size: 12px; padding: 7px 9px; outline: none; transition: border-color 0.15s; }
+    .fi:focus { border-color: #444; }
+    textarea.fi { resize: vertical; min-height: 60px; }
+    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+
+    /* BUTTONS */
+    .btn { font-size: 11px; padding: 7px 16px; border-radius: 7px; cursor: pointer; font-family: inherit; font-weight: 700; transition: all 0.15s; border: 1px solid; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-red   { background: #1a0808; border-color: #3d1a1a; color: #f87171; }
+    .btn-red:hover { background: #2a0a0a; }
+    .btn-green { background: #0a2a1a; border-color: #1a4a2a; color: #4ade80; }
+    .btn-green:hover { background: #0f3a22; }
+    .btn-blue  { background: #0a1a3a; border-color: #1a2a5a; color: #60a5fa; }
+    .btn-blue:hover { background: #0f2245; }
+    .btn-amber { background: #2a1a05; border-color: #4a2a10; color: #fb923c; }
+    .btn-amber:hover { background: #3a2208; }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+    /* TEAM ROWS */
+    .team-admin-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #1e1e1e; }
+    .team-admin-row:last-child { border-bottom: none; }
+    .ta-av { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+    .ta-info { flex: 1; }
+    .ta-name { font-size: 12px; font-weight: 700; color: #e0e0e0; }
+    .ta-sub { font-size: 10px; color: #555; margin-top: 1px; }
+    .ta-actions { display: flex; gap: 6px; }
+    .ta-btn { font-size: 10px; padding: 4px 10px; border-radius: 5px; cursor: pointer; font-family: inherit; font-weight: 600; border: 1px solid; transition: all 0.15s; }
+
+    /* PURCHASE APPROVE */
+    .purchase-admin-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid #1e1e1e; }
+    .purchase-admin-row:last-child { border-bottom: none; }
+    .pa-info { flex: 1; min-width: 0; }
+    .pa-title { font-size: 12px; font-weight: 700; color: #e0e0e0; }
+    .pa-meta { font-size: 10px; color: #555; margin-top: 2px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .pa-actions { display: flex; gap: 5px; flex-shrink: 0; }
+    .pa-btn { font-size: 10px; padding: 3px 9px; border-radius: 5px; cursor: pointer; font-family: inherit; font-weight: 600; border: 1px solid; transition: all 0.15s; }
+    .pa-approve { background: #0a2a1a; border-color: #1a4a2a; color: #4ade80; }
+    .pa-approve:hover { background: #0f3a22; }
+    .pa-reject  { background: #2a0a0a; border-color: #4a1a1a; color: #f87171; }
+    .pa-reject:hover { background: #3a0a0a; }
+    .pa-purchased { background: #0a1a3a; border-color: #1a2a5a; color: #60a5fa; }
+    .pa-purchased:hover { background: #0f2245; }
+    .status-chip { font-size: 9px; padding: 2px 7px; border-radius: 5px; font-weight: 600; }
+    .sc-pending  { background: #2a1a05; color: #fb923c; border: 1px solid #4a2a10; }
+    .sc-approved { background: #0a2a1a; color: #4ade80; border: 1px solid #1a4a2a; }
+    .sc-purchased{ background: #0a1a3a; color: #60a5fa; border: 1px solid #1a2a5a; }
+    .no-items { font-size: 11px; color: #444; padding: 12px 0; text-align: center; }
+
+    /* DANGER ZONE */
+    .danger-section { border: 1px solid #3d1a1a; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; }
+    .danger-label { font-size: 10px; color: #f87171; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+
+    /* CONFIRM MODAL */
+    .confirm-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
+    .confirm-overlay.open { display: flex; }
+    .confirm-box { background: #1a1a1a; border: 1px solid #3d1a1a; border-radius: 12px; padding: 22px; width: 100%; max-width: 360px; text-align: center; }
+    .confirm-icon { font-size: 28px; color: #f87171; margin-bottom: 10px; }
+    .confirm-title { font-size: 14px; font-weight: 700; color: #f0f0f0; margin-bottom: 6px; }
+    .confirm-sub { font-size: 11px; color: #666; margin-bottom: 18px; line-height: 1.6; }
+    .confirm-btns { display: flex; gap: 8px; justify-content: center; }
+
+    /* TOAST */
+    .toast { position: fixed; bottom: 24px; right: 24px; z-index: 400; background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 9px; padding: 10px 16px; font-size: 12px; color: #e0e0e0; display: flex; align-items: center; gap: 8px; transform: translateY(60px); opacity: 0; transition: all 0.25s ease; pointer-events: none; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { border-color: #1a4a2a; color: #4ade80; }
+    .toast.error   { border-color: #4a1a1a; color: #f87171; }
+
+    /* EXPORT */
+    .export-preview { background: #0a0a0a; border: 1px solid #2a2a2a; border-radius: 7px; padding: 12px; font-size: 10px; color: #666; line-height: 1.8; max-height: 180px; overflow-y: auto; margin-top: 10px; white-space: pre; }
+
+    .green{color:#4ade80} .amber{color:#fb923c} .red{color:#f87171} .gray{color:#aaa}
+  </style>
+</head>
+<body>
+<canvas id="neural-bg"></canvas>
+<div class="vignette"></div>
+<div class="toast" id="toast"></div>
+
+<!-- CONFIRM MODAL -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div class="confirm-icon"><i class="ti ti-alert-triangle"></i></div>
+    <div class="confirm-title" id="confirm-title">Are you sure?</div>
+    <div class="confirm-sub" id="confirm-sub">This action cannot be undone.</div>
+    <div class="confirm-btns">
+      <button class="btn btn-red" id="confirm-yes">Confirm</button>
+      <button class="btn" style="background:#1a1a1a;border-color:#2a2a2a;color:#aaa" onclick="closeConfirm()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOCK SCREEN -->
+<div class="lock-screen" id="lock-screen">
+  <div style="position:relative;z-index:10;width:100%;max-width:380px">
+    <div class="lock-box">
+      <div class="lock-icon"><i class="ti ti-shield-lock"></i></div>
+      <div class="lock-title">Admin Access</div>
+      <div class="lock-sub">Restricted · Authorized personnel only</div>
+      <input class="lock-input" type="password" id="admin-pw" placeholder="Enter admin password" />
+      <div class="lock-err" id="lock-err">Incorrect password. Access denied.</div>
+      <button class="lock-btn" onclick="checkAdminPw()"><i class="ti ti-lock-open" style="font-size:13px"></i> Unlock</button>
+      <a class="lock-back" href="dashboard.html"><i class="ti ti-arrow-left" style="font-size:11px;vertical-align:-1px"></i> Back to Dashboard</a>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN APP -->
+<div class="admin-app" id="admin-app">
+  <div class="root">
+
+    <div class="ph">
+      <div>
+        <div class="ptitle"><i class="ti ti-shield-lock"></i>Admin Panel</div>
+        <div class="psub">Talatanaw &nbsp;·&nbsp; Restricted Access</div>
+      </div>
+      <div class="ph-right">
+        <div class="admin-chip"><i class="ti ti-shield-check" style="font-size:10px"></i> Admin</div>
+        <a class="back-btn" href="dashboard.html"><i class="ti ti-arrow-left" style="font-size:11px"></i> Dashboard</a>
+      </div>
+    </div>
+
+    <!-- ROW 1 -->
+    <div class="admin-grid" style="margin-bottom:16px">
+
+      <!-- ANNOUNCEMENT -->
+      <div class="acard">
+        <div class="acard-title"><i class="ti ti-speakerphone" style="color:#4ade80"></i>Project-wide Announcement<span class="badge-admin ba-green">Live</span></div>
+        <div class="fg"><label class="flab">Announcement message</label><textarea class="fi" id="announce-input" placeholder="Type a message visible to all viewers on the dashboard…"></textarea></div>
+        <div class="btn-row">
+          <button class="btn btn-green" onclick="postAnnouncement()"><i class="ti ti-send" style="font-size:11px"></i> Post to Dashboard</button>
+          <button class="btn btn-red" onclick="clearAnnouncement()"><i class="ti ti-x" style="font-size:11px"></i> Clear</button>
+        </div>
+        <div style="margin-top:10px;font-size:10px;color:#444">Current: <span id="current-announce" style="color:#666">None</span></div>
+      </div>
+
+      <!-- ERC GRANT CEILING -->
+      <div class="acard">
+        <div class="acard-title"><i class="ti ti-building-bank" style="color:#60a5fa"></i>ERC Grant Settings<span class="badge-admin ba-blue">Finance</span></div>
+        <div class="fg"><label class="flab">Total ERC Grant Ceiling (₱)</label><input class="fi" type="number" id="erc-ceiling-input" placeholder="e.g. 50000" min="0" /></div>
+        <div style="font-size:10px;color:#555;margin-bottom:10px">This sets the maximum grant amount displayed on the dashboard. Current allocations will still be team-defined.</div>
+        <button class="btn btn-blue" onclick="saveErcCeiling()"><i class="ti ti-check" style="font-size:11px"></i> Save Grant Ceiling</button>
+        <div style="margin-top:10px;font-size:10px;color:#444">Current ceiling: <span id="current-ceiling" style="color:#60a5fa">Not set</span></div>
+      </div>
+
+    </div>
+
+    <!-- ROW 2 -->
+    <div class="admin-grid" style="margin-bottom:16px">
+
+      <!-- PURCHASE APPROVALS -->
+      <div class="acard">
+        <div class="acard-title"><i class="ti ti-shopping-cart" style="color:#fb923c"></i>Purchase Requests<span class="badge-admin ba-amber">Approvals</span></div>
+        <div id="purchase-admin-list"><div class="no-items">Loading...</div></div>
+      </div>
+
+      <!-- CHANGE PASSWORDS -->
+      <div class="acard">
+        <div class="acard-title"><i class="ti ti-key" style="color:#a78bfa"></i>Team Passwords<span class="badge-admin" style="background:#1a0a2a;color:#a78bfa;border:1px solid #3a1a5a">Credentials</span></div>
+        <div id="password-admin-list"></div>
+      </div>
+
+    </div>
+
+    <!-- ROW 3 -->
+    <div class="admin-grid" style="margin-bottom:16px">
+
+      <!-- EXPORT -->
+      <div class="acard">
+        <div class="acard-title"><i class="ti ti-file-export" style="color:#4ade80"></i>Export Report<span class="badge-admin ba-green">Data</span></div>
+        <div style="font-size:11px;color:#666;margin-bottom:12px;line-height:1.6">Download a snapshot of all team progress, budgets, and purchase history.</div>
+        <div class="btn-row">
+          <button class="btn btn-green" onclick="exportCSV()"><i class="ti ti-file-spreadsheet" style="font-size:11px"></i> Export CSV</button>
+          <button class="btn btn-blue"  onclick="printReport()"><i class="ti ti-printer" style="font-size:11px"></i> Print Report</button>
+        </div>
+        <div class="export-preview" id="export-preview">Preview will appear here...</div>
+      </div>
+
+      <!-- DANGER ZONE -->
+      <div class="acard">
+        <div class="acard-title"><i class="ti ti-alert-octagon" style="color:#f87171"></i>Danger Zone<span class="badge-admin ba-red">Irreversible</span></div>
+        <div class="danger-section">
+          <div class="danger-label"><i class="ti ti-refresh" style="font-size:11px"></i>Reset Team Data</div>
+          <div style="font-size:11px;color:#666;margin-bottom:10px;line-height:1.5">Reset a specific team's progress, budgets, and purchases back to zero. This cannot be undone.</div>
+          <div id="reset-team-list"></div>
+        </div>
+        <div class="danger-section" style="margin-top:10px">
+          <div class="danger-label"><i class="ti ti-trash" style="font-size:11px"></i>Nuke All Data</div>
+          <div style="font-size:11px;color:#666;margin-bottom:10px;line-height:1.5">Wipe ALL team data, history, events, and announcements. Fresh start.</div>
+          <button class="btn btn-red" onclick="confirmNuke()"><i class="ti ti-skull" style="font-size:11px"></i> Wipe Everything</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, get, onValue, push, remove, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const ADMIN_PASSWORD = 'Winhardplayers 220038';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAgR2GBjSMMdIZriJ3e0YNF4NY7YzfoFjY",
+    authDomain: "bantaytanaw.firebaseapp.com",
+    databaseURL: "https://bantaytanaw-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "bantaytanaw",
+    storageBucket: "bantaytanaw.firebasestorage.app",
+    messagingSenderId: "610431845460",
+    appId: "1:610431845460:web:04702e8c35d44491e0d9c1"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  /* ── NEURAL NET ── */
+  const canvas=document.getElementById('neural-bg'),ctx=canvas.getContext('2d');
+  let W,H,nodes=[];
+  const COUNT=60,MAX_DIST=140,SPEED=0.3;
+  function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight;}
+  function initNodes(){nodes=Array.from({length:COUNT},()=>({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*SPEED,vy:(Math.random()-.5)*SPEED,pulse:Math.random()*Math.PI*2}));}
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    nodes.forEach(n=>{n.x+=n.vx;n.y+=n.vy;n.pulse+=0.02;if(n.x<0||n.x>W)n.vx*=-1;if(n.y<0||n.y>H)n.vy*=-1;});
+    for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){const dx=nodes[i].x-nodes[j].x,dy=nodes[i].y-nodes[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<MAX_DIST){ctx.beginPath();ctx.strokeStyle=`rgba(248,113,113,${(1-d/MAX_DIST)*0.12})`;ctx.lineWidth=0.7;ctx.moveTo(nodes[i].x,nodes[i].y);ctx.lineTo(nodes[j].x,nodes[j].y);ctx.stroke();}}
+    nodes.forEach(n=>{const g=0.5+0.5*Math.sin(n.pulse);ctx.beginPath();ctx.arc(n.x,n.y,2*(0.7+g*0.4),0,Math.PI*2);ctx.fillStyle=`rgba(248,113,113,${0.15+g*0.35})`;ctx.fill();});
+    requestAnimationFrame(draw);
+  }
+  resize();initNodes();draw();
+  window.addEventListener('resize',resize);
+
+  /* ── TOAST ── */
+  let toastTimer;
+  function showToast(msg,type='success'){
+    const el=document.getElementById('toast');
+    el.className='toast '+type;
+    el.innerHTML=`<i class="ti ti-${type==='success'?'check':'alert-circle'}" style="font-size:13px"></i>${msg}`;
+    el.classList.add('show');clearTimeout(toastTimer);
+    toastTimer=setTimeout(()=>el.classList.remove('show'),2800);
+  }
+
+  /* ── CONFIRM MODAL ── */
+  let confirmCallback=null;
+  function showConfirm(title,sub,cb){
+    confirmCallback=cb;
+    document.getElementById('confirm-title').textContent=title;
+    document.getElementById('confirm-sub').textContent=sub;
+    document.getElementById('confirm-yes').onclick=()=>{closeConfirm();cb();};
+    document.getElementById('confirm-overlay').classList.add('open');
+  }
+  window.closeConfirm=function(){document.getElementById('confirm-overlay').classList.remove('open');};
+
+  /* ── LOCK ── */
+  window.checkAdminPw=function(){
+    const pw=document.getElementById('admin-pw').value;
+    const err=document.getElementById('lock-err');
+    if(pw===ADMIN_PASSWORD){
+      document.getElementById('lock-screen').classList.add('hidden');
+      document.getElementById('admin-app').classList.add('visible');
+      initAdmin();
+    } else {
+      err.classList.add('show');
+      const box=document.querySelector('.lock-box');
+      box.classList.remove('shake');void box.offsetWidth;box.classList.add('shake');
+      document.getElementById('admin-pw').value='';
+    }
+  };
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&!document.getElementById('lock-screen').classList.contains('hidden')) checkAdminPw();
+  });
+
+  /* ── TEAM DEFAULTS ── */
+  const TEAM_DEFAULTS=[
+    {id:'mobility',  name:'Mobility',     dot:'#60a5fa',initials:'MO',password:'mobility123'},
+    {id:'drone',     name:'Drone',        dot:'#22d3ee',initials:'DR',password:'drone123'},
+    {id:'navigation',name:'Navigation',   dot:'#a78bfa',initials:'NA',password:'nav123'},
+    {id:'arm',       name:'Robotic Arm',  dot:'#fb923c',initials:'RA',password:'arm123'},
+    {id:'drill',     name:'Robotic Drill',dot:'#f87171',initials:'RD',password:'drill123'}
+  ];
+
+  let TEAMS_DATA={};
+  const fmt=n=>'₱'+Math.round(n).toLocaleString();
+
+  function initAdmin(){
+    onValue(ref(db,'teams'),snap=>{
+      TEAMS_DATA=snap.val()||{};
+      renderPurchaseList();
+      renderExportPreview();
+    });
+    onValue(ref(db,'announcement'),snap=>{
+      const d=snap.val();
+      document.getElementById('current-announce').textContent=d&&d.text?d.text:'None';
+      if(d&&d.text) document.getElementById('announce-input').value=d.text;
+    });
+    onValue(ref(db,'ercCeiling'),snap=>{
+      const v=snap.val();
+      if(v){document.getElementById('current-ceiling').textContent=fmt(v);document.getElementById('erc-ceiling-input').value=v;}
+    });
+    renderPasswordList();
+    renderResetList();
+  }
+
+  /* ── ANNOUNCEMENT ── */
+  window.postAnnouncement=async function(){
+    const text=document.getElementById('announce-input').value.trim();
+    if(!text){showToast('Enter a message first','error');return;}
+    await set(ref(db,'announcement'),{text,active:true,postedAt:Date.now()});
+    showToast('Announcement posted');
+  };
+  window.clearAnnouncement=async function(){
+    await set(ref(db,'announcement'),{text:'',active:false});
+    document.getElementById('announce-input').value='';
+    showToast('Announcement cleared');
+  };
+
+  /* ── ERC CEILING ── */
+  window.saveErcCeiling=async function(){
+    const val=parseFloat(document.getElementById('erc-ceiling-input').value)||0;
+    await set(ref(db,'ercCeiling'),val);
+    showToast('Grant ceiling saved');
+  };
+
+  /* ── PURCHASE APPROVALS ── */
+  function renderPurchaseList(){
+    const el=document.getElementById('purchase-admin-list');
+    const allPurchases=[];
+    TEAM_DEFAULTS.forEach(def=>{
+      const td=TEAMS_DATA[def.id];
+      if(!td||!td.purchases)return;
+      const purchases=Array.isArray(td.purchases)?td.purchases:Object.values(td.purchases);
+      purchases.forEach((p,i)=>allPurchases.push({...p,teamId:def.id,teamName:def.name,teamDot:def.dot,idx:i}));
+    });
+    if(!allPurchases.length){el.innerHTML='<div class="no-items">No purchase requests yet.</div>';return;}
+    el.innerHTML=allPurchases.map(p=>{
+      const sc=p.status==='pending'?'sc-pending':p.status==='approved'?'sc-approved':'sc-purchased';
+      return `<div class="purchase-admin-row">
+        <div class="pa-info">
+          <div class="pa-title">${p.item||'Unnamed item'}</div>
+          <div class="pa-meta">
+            <span style="color:${p.teamDot}">${p.teamName}</span>
+            <span>${fmt(p.amount||0)}</span>
+            <span class="status-chip ${sc}">${(p.status||'pending').charAt(0).toUpperCase()+(p.status||'pending').slice(1)}</span>
+          </div>
+        </div>
+        <div class="pa-actions">
+          <button class="pa-btn pa-approve" onclick="window.updatePurchaseStatus('${p.teamId}',${p.idx},'approved')">✓</button>
+          <button class="pa-btn pa-purchased" onclick="window.updatePurchaseStatus('${p.teamId}',${p.idx},'purchased')">✦</button>
+          <button class="pa-btn pa-reject" onclick="window.updatePurchaseStatus('${p.teamId}',${p.idx},'pending')">↺</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  window.updatePurchaseStatus=async function(teamId,idx,status){
+    const td=TEAMS_DATA[teamId];if(!td)return;
+    const purchases=Array.isArray(td.purchases)?[...td.purchases]:Object.values(td.purchases);
+    if(!purchases[idx])return;
+    purchases[idx]={...purchases[idx],status};
+    await set(ref(db,'teams/'+teamId+'/purchases'),purchases);
+    showToast('Purchase updated to: '+status);
+  };
+
+  /* ── PASSWORDS ── */
+  function renderPasswordList(){
+    const el=document.getElementById('password-admin-list');
+    el.innerHTML=TEAM_DEFAULTS.map(t=>`
+      <div class="team-admin-row">
+        <div class="ta-av" style="background:${t.dot}22;color:${t.dot}">${t.initials}</div>
+        <div class="ta-info"><div class="ta-name">${t.name}</div><div class="ta-sub">Current: <span id="pw-display-${t.id}" style="color:#555">••••••••</span></div></div>
+        <div class="ta-actions">
+          <input class="fi" type="text" id="pw-new-${t.id}" placeholder="New password" style="width:130px;font-size:10px;padding:5px 7px" />
+          <button class="ta-btn" style="background:#0a2a1a;border-color:#1a4a2a;color:#4ade80" onclick="window.changePassword('${t.id}')">Save</button>
+        </div>
+      </div>`).join('');
+  }
+
+  window.changePassword=async function(teamId){
+    const newPw=document.getElementById('pw-new-'+teamId).value.trim();
+    if(!newPw){showToast('Enter a new password','error');return;}
+    if(newPw.length<4){showToast('Password too short (min 4)','error');return;}
+    // Store in Firebase under teamPasswords
+    await set(ref(db,'teamPasswords/'+teamId),newPw);
+    document.getElementById('pw-new-'+teamId).value='';
+    showToast('Password updated for '+TEAM_DEFAULTS.find(t=>t.id===teamId)?.name);
+    showToast('Note: Update the password in your dashboard.html code too for full effect');
+  };
+
+  /* ── RESET ── */
+  function renderResetList(){
+    const el=document.getElementById('reset-team-list');
+    el.innerHTML=TEAM_DEFAULTS.map(t=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #1e1e1e">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="width:22px;height:22px;border-radius:50%;background:${t.dot}22;color:${t.dot};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700">${t.initials}</div>
+          <span style="font-size:11px;color:#ccc">${t.name}</span>
+        </div>
+        <button class="btn btn-red" style="font-size:9px;padding:3px 10px" onclick="window.confirmResetTeam('${t.id}','${t.name}')"><i class="ti ti-refresh" style="font-size:10px"></i> Reset</button>
+      </div>`).join('');
+  }
+
+  window.confirmResetTeam=function(id,name){
+    showConfirm('Reset '+name+'?','This will zero out all progress, budget, and purchases for the '+name+' team.',()=>resetTeam(id,name));
+  };
+
+  async function resetTeam(id,name){
+    await set(ref(db,'teams/'+id),{status:'on-track',progress:0,update:'',blocker:'',nextTask:'',nextDue:'',allocated:0,used:0,timestamp:'',lastUpdatedTs:null,purchases:[]});
+    showToast(name+' has been reset');
+  }
+
+  window.confirmNuke=function(){
+    showConfirm('Wipe EVERYTHING?','This will permanently delete all team data, history, events, and announcements. There is no undo.',()=>nukeAll());
+  };
+
+  async function nukeAll(){
+    await set(ref(db,'teams'),null);
+    await set(ref(db,'history'),null);
+    await set(ref(db,'events'),null);
+    await set(ref(db,'announcement'),null);
+    showToast('All data wiped');
+  }
+
+  /* ── EXPORT ── */
+  function renderExportPreview(){
+    const lines=['TALATANAW — PROJECT REPORT','Generated: '+new Date().toLocaleString(),'','TEAM SUMMARY','─────────────────────────────────'];
+    TEAM_DEFAULTS.forEach(def=>{
+      const t=TEAMS_DATA[def.id]||{};
+      lines.push(`${def.name}`);
+      lines.push(`  Progress : ${t.progress||0}%`);
+      lines.push(`  Status   : ${t.status||'on-track'}`);
+      lines.push(`  Allocated: ${fmt(t.allocated||0)}`);
+      lines.push(`  Spent    : ${fmt(t.used||0)}`);
+      lines.push(`  Next Task: ${t.nextTask||'—'}`);
+      if(t.blocker) lines.push(`  Blocker  : ${t.blocker}`);
+      lines.push('');
+    });
+    document.getElementById('export-preview').textContent=lines.join('\n');
+  }
+
+  window.exportCSV=function(){
+    const headers='Team,Status,Progress,Allocated,Spent,Next Task,Blocker,Last Updated';
+    const rows=TEAM_DEFAULTS.map(def=>{
+      const t=TEAMS_DATA[def.id]||{};
+      return[def.name,t.status||'on-track',(t.progress||0)+'%',t.allocated||0,t.used||0,`"${(t.nextTask||'').replace(/"/g,'""')}"`,`"${(t.blocker||'').replace(/"/g,'""')}"`,t.timestamp||'Never'].join(',');
+    });
+    const csv=[headers,...rows].join('\n');
+    const blob=new Blob([csv],{type:'text/csv'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');a.href=url;a.download=`talatanaw-report-${new Date().toISOString().slice(0,10)}.csv`;a.click();
+    URL.revokeObjectURL(url);
+    showToast('CSV exported');
+  };
+
+  window.printReport=function(){
+    const preview=document.getElementById('export-preview').textContent;
+    const win=window.open('','_blank');
+    win.document.write(`<html><head><title>Talatanaw Report</title><style>body{font-family:monospace;padding:30px;background:#fff;color:#000;white-space:pre;font-size:13px;line-height:1.8}</style></head><body>${preview}</body></html>`);
+    win.document.close();win.print();
+    showToast('Print dialog opened');
+  };
+</script>
+</body>
+</html>
