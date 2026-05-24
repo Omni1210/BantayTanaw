@@ -133,6 +133,40 @@
     .export-preview { background: #0a0a0a; border: 1px solid #2a2a2a; border-radius: 7px; padding: 12px; font-size: 10px; color: #666; line-height: 1.8; max-height: 180px; overflow-y: auto; margin-top: 10px; white-space: pre; }
 
     .green{color:#4ade80} .amber{color:#fb923c} .red{color:#f87171} .gray{color:#aaa}
+
+    /* USER MANAGEMENT */
+    .user-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid #1e1e1e; }
+    .user-row:last-child { border-bottom: none; }
+    .user-av { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; background: #1a1a1a; border: 1px solid #2a2a2a; overflow: hidden; flex-shrink: 0; }
+    .user-av img { width: 100%; height: 100%; object-fit: cover; }
+    .user-info { flex: 1; min-width: 0; }
+    .user-name { font-size: 11px; font-weight: 700; color: #e0e0e0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-email { font-size: 9px; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+    .user-meta { font-size: 9px; color: #444; margin-top: 1px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .user-actions { display: flex; gap: 5px; flex-shrink: 0; align-items: center; }
+    .user-status-chip { font-size: 9px; padding: 2px 7px; border-radius: 5px; font-weight: 600; white-space: nowrap; }
+    .us-approved { background: #0a2a1a; color: #4ade80; border: 1px solid #1a4a2a; }
+    .us-pending  { background: #2a1a05; color: #fb923c; border: 1px solid #4a2a10; }
+    .us-denied   { background: #2a0a0a; color: #f87171; border: 1px solid #4a1a1a; }
+    .team-tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 600; background: #1a1a1a; border: 1px solid #2a2a2a; color: #aaa; }
+    .user-team-sel { font-size: 10px; background: #111; border: 1px solid #2a2a2a; border-radius: 5px; color: #e0e0e0; font-family: inherit; padding: 3px 5px; outline: none; }
+    .no-users { font-size: 11px; color: #444; text-align: center; padding: 18px 0; }
+
+    /* LIVE VIEWERS */
+    .viewer-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #1e1e1e; }
+    .viewer-row:last-child { border-bottom: none; }
+    .viewer-dot { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; animation: lpulse 1.8s infinite; flex-shrink: 0; }
+    .viewer-dot.guest { background: #60a5fa; animation: lpulse 1.8s infinite; }
+    .viewer-dot.pending { background: #fb923c; animation: lpulse 1.8s infinite; }
+    .viewer-info { flex: 1; min-width: 0; }
+    .viewer-name { font-size: 11px; font-weight: 700; color: #e0e0e0; }
+    .viewer-sub { font-size: 9px; color: #555; margin-top: 1px; }
+    .viewer-role { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 600; flex-shrink: 0; }
+    .vr-member  { background: #0a2a1a; color: #4ade80; border: 1px solid #1a4a2a; }
+    .vr-guest   { background: #0a1a3a; color: #60a5fa; border: 1px solid #1a2a5a; }
+    .vr-pending { background: #2a1a05; color: #fb923c; border: 1px solid #4a2a10; }
+    .no-viewers { font-size: 11px; color: #444; text-align: center; padding: 14px 0; }
+    @keyframes lpulse { 0%,100%{opacity:1}50%{opacity:0.3} }
   </style>
 </head>
 <body>
@@ -181,6 +215,37 @@
         <div class="admin-chip"><i class="ti ti-shield-check" style="font-size:10px"></i> Admin</div>
         <a class="back-btn" href="dashboard.html"><i class="ti ti-arrow-left" style="font-size:11px"></i> Dashboard</a>
       </div>
+    </div>
+
+    <!-- USER MANAGEMENT + LIVE VIEWERS -->
+    <div class="admin-grid" style="margin-bottom:16px">
+
+      <!-- USER MANAGEMENT -->
+      <div class="acard">
+        <div class="acard-title">
+          <i class="ti ti-users" style="color:#4ade80"></i>
+          User Management
+          <span class="badge-admin ba-green">Access Control</span>
+        </div>
+        <div style="font-size:10px;color:#555;margin-bottom:12px;line-height:1.6">
+          Approve or deny Google sign-ins. Approved users get full member edit access on the dashboard.
+        </div>
+        <div id="user-admin-list"><div class="no-users"><i class="ti ti-loader" style="font-size:14px;vertical-align:-2px"></i> Loading…</div></div>
+      </div>
+
+      <!-- LIVE VIEWERS -->
+      <div class="acard">
+        <div class="acard-title">
+          <i class="ti ti-eye" style="color:#60a5fa"></i>
+          Live Viewers
+          <span class="badge-admin ba-blue" id="live-viewer-count-badge">0 online</span>
+        </div>
+        <div style="font-size:10px;color:#555;margin-bottom:12px;line-height:1.6">
+          Everyone currently viewing the dashboard in real time.
+        </div>
+        <div id="live-viewers-list"><div class="no-viewers">No one online right now.</div></div>
+      </div>
+
     </div>
 
     <!-- ROW 1 -->
@@ -360,8 +425,99 @@
       const v=snap.val();
       if(v){document.getElementById('current-ceiling').textContent=fmt(v);document.getElementById('erc-ceiling-input').value=v;}
     });
+    // User Management
+    onValue(ref(db,'users'),snap=>{
+      const users=snap.val()||{};
+      renderUserList(users);
+    });
+    // Live Viewers
+    onValue(ref(db,'presence'),snap=>{
+      const presence=snap.val()||{};
+      renderLiveViewers(presence);
+    });
     renderPasswordList();
     renderResetList();
+  }
+
+  /* ── USER MANAGEMENT ── */
+  const TEAM_NAMES = {mobility:'Mobility',drone:'Drone',navigation:'Navigation',arm:'Robotic Arm',drill:'Robotic Drill'};
+  const TEAM_DOTS  = {mobility:'#60a5fa',drone:'#22d3ee',navigation:'#a78bfa',arm:'#fb923c',drill:'#f87171'};
+
+  function renderUserList(users) {
+    const el = document.getElementById('user-admin-list');
+    const entries = Object.entries(users);
+    if(!entries.length) { el.innerHTML = '<div class="no-users">No sign-ins yet. Users appear here after their first Google login.</div>'; return; }
+    // Sort: pending first, then approved, then denied
+    entries.sort(([,a],[,b]) => {
+      const order = {pending:0,approved:1,denied:2};
+      return (order[a.status]??1) - (order[b.status]??1);
+    });
+    el.innerHTML = entries.map(([key, u]) => {
+      const statusClass = u.status==='approved'?'us-approved':u.status==='denied'?'us-denied':'us-pending';
+      const statusLabel = u.status==='approved'?'Approved':u.status==='denied'?'Denied':'Pending';
+      const teamDot = u.team ? TEAM_DOTS[u.team]||'#aaa' : '#444';
+      const teamLabel = u.team ? TEAM_NAMES[u.team]||u.team : '—';
+      const teamOptions = ['mobility','drone','navigation','arm','drill'].map(t =>
+        `<option value="${t}" ${u.team===t?'selected':''}>${TEAM_NAMES[t]}</option>`).join('');
+      const avatarHTML = u.photoURL
+        ? `<img src="${u.photoURL}" alt="avatar" />`
+        : `<span style="color:#4ade80;font-weight:700">${(u.displayName||u.email||'?')[0].toUpperCase()}</span>`;
+      return `<div class="user-row" id="ur-${key}">
+        <div class="user-av">${avatarHTML}</div>
+        <div class="user-info">
+          <div class="user-name">${u.displayName||'Unknown'}</div>
+          <div class="user-email">${u.email||key}</div>
+          <div class="user-meta">
+            <span class="user-status-chip ${statusClass}">${statusLabel}</span>
+            ${u.team?`<span class="team-tag" style="color:${teamDot}">${teamLabel}</span>`:'<span class="team-tag">No team</span>'}
+          </div>
+        </div>
+        <div class="user-actions">
+          <select class="user-team-sel" id="team-sel-${key}" onchange="window.setUserTeam('${key}',this.value)">
+            <option value="">Team…</option>${teamOptions}
+          </select>
+          ${u.status!=='approved'?`<button class="ta-btn" style="background:#0a2a1a;border-color:#1a4a2a;color:#4ade80;font-size:10px;padding:3px 8px" onclick="window.setUserStatus('${key}','approved')">✓ Approve</button>`:''}
+          ${u.status!=='denied'?`<button class="ta-btn" style="background:#2a0a0a;border-color:#4a1a1a;color:#f87171;font-size:10px;padding:3px 8px" onclick="window.setUserStatus('${key}','denied')">✕ Deny</button>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  window.setUserStatus = async function(key, status) {
+    await update(ref(db,'users/'+key), {status});
+    showToast(status==='approved'?'User approved — they now have member access':'User denied');
+  };
+
+  window.setUserTeam = async function(key, team) {
+    if(!team) return;
+    await update(ref(db,'users/'+key), {team});
+    showToast('Team assigned: '+TEAM_NAMES[team]);
+  };
+
+  /* ── LIVE VIEWERS ── */
+  function renderLiveViewers(presence) {
+    const el = document.getElementById('live-viewers-list');
+    const badge = document.getElementById('live-viewer-count-badge');
+    const entries = Object.entries(presence).filter(([,v]) => v.role !== 'landing');
+    badge.textContent = entries.length + ' online';
+    if(!entries.length) { el.innerHTML = '<div class="no-viewers">No one viewing the dashboard right now.</div>'; return; }
+    el.innerHTML = entries.map(([key, v]) => {
+      const isPending = v.pendingMember;
+      const dotClass  = v.role==='member' ? '' : isPending ? 'pending' : 'guest';
+      const roleClass = v.role==='member' ? 'vr-member' : isPending ? 'vr-pending' : 'vr-guest';
+      const roleLabel = v.role==='member' ? 'Member' : isPending ? 'Pending' : 'Guest';
+      const teamColor = v.team && TEAM_DOTS[v.team] ? TEAM_DOTS[v.team] : '#aaa';
+      const ago = v.ts ? Math.round((Date.now()-v.ts)/1000) : 0;
+      const agoLabel = ago < 10 ? 'just now' : ago < 60 ? ago+'s ago' : Math.round(ago/60)+'m ago';
+      return `<div class="viewer-row">
+        <div class="viewer-dot ${dotClass}"></div>
+        <div class="viewer-info">
+          <div class="viewer-name">${v.name||'Unknown'}</div>
+          <div class="viewer-sub">${v.email||'No email'} &nbsp;·&nbsp; ${v.team||'—'} &nbsp;·&nbsp; ${agoLabel}</div>
+        </div>
+        <span class="viewer-role ${roleClass}">${roleLabel}</span>
+      </div>`;
+    }).join('');
   }
 
   /* ── ANNOUNCEMENT ── */
