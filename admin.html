@@ -152,6 +152,44 @@
     .user-team-sel { font-size: 10px; background: #111; border: 1px solid #2a2a2a; border-radius: 5px; color: #e0e0e0; font-family: inherit; padding: 3px 5px; outline: none; }
     .no-users { font-size: 11px; color: #444; text-align: center; padding: 18px 0; }
 
+    /* Inbox notification cards for pending sign-ups */
+    .inbox-notif {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: #0f1a08; border: 1px solid #2a3a18;
+      border-radius: 10px; padding: 12px 14px;
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .inbox-notif::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+      width: 3px; background: #fcd34d; border-radius: 10px 0 0 10px;
+    }
+    .inbox-icon { flex-shrink: 0; margin-top: 2px; }
+    .inbox-body { flex: 1; min-width: 0; }
+    .inbox-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+    .inbox-avatar {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: #1a3a20; flex-shrink: 0; overflow: hidden;
+      display: flex; align-items: center; justify-content: center; font-size: 10px;
+    }
+    .inbox-info { flex: 1; min-width: 0; }
+    .inbox-name { font-size: 12px; font-weight: 700; color: #e0e0e0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .inbox-email { font-size: 10px; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .inbox-time { font-size: 9px; color: #333; flex-shrink: 0; }
+    .inbox-team { font-size: 10px; margin-bottom: 8px; }
+    .inbox-team-change { margin-bottom: 8px; }
+    .inbox-actions { display: flex; gap: 6px; }
+    .inbox-btn {
+      flex: 1; padding: 6px 0; border-radius: 7px; font-family: inherit;
+      font-size: 11px; font-weight: 700; cursor: pointer; border: none;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .inbox-btn:hover { opacity: 0.85; }
+    .inbox-btn:active { transform: scale(0.97); }
+    .inbox-btn.approve { background: #0a2a1a; color: #4ade80; border: 1px solid #1a4a2a; }
+    .inbox-btn.deny    { background: #2a0a0a; color: #f87171; border: 1px solid #4a1a1a; }
+
     /* LIVE VIEWERS */
     .viewer-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #1e1e1e; }
     .viewer-row:last-child { border-bottom: none; }
@@ -223,13 +261,19 @@
       <!-- USER MANAGEMENT -->
       <div class="acard">
         <div class="acard-title">
-          <i class="ti ti-users" style="color:#4ade80"></i>
-          User Management
+          <i class="ti ti-inbox" style="color:#4ade80"></i>
+          Member Approval Inbox
+          <span class="badge-admin ba-green" id="pending-count-badge" style="display:none">0 pending</span>
           <span class="badge-admin ba-green">Access Control</span>
         </div>
         <div style="font-size:10px;color:#555;margin-bottom:12px;line-height:1.6">
-          Approve or deny Google sign-ins. Approved users get full member edit access on the dashboard.
+          New sign-ups appear here for your review. Approve to grant member access, or deny to block.
         </div>
+        <!-- Pending inbox notifications -->
+        <div id="pending-inbox" style="margin-bottom:8px"></div>
+        <!-- Divider if there are both pending and non-pending -->
+        <div id="approved-section-label" style="display:none;font-size:10px;color:#333;text-transform:uppercase;letter-spacing:0.6px;margin:10px 0 8px;padding-top:10px;border-top:1px solid #1a1a1a">All Members</div>
+        <!-- All other users -->
         <div id="user-admin-list"><div class="no-users"><i class="ti ti-loader" style="font-size:14px;vertical-align:-2px"></i> Loading…</div></div>
       </div>
 
@@ -444,43 +488,113 @@
   const TEAM_DOTS  = {mobility:'#60a5fa',drone:'#22d3ee',navigation:'#a78bfa',arm:'#fb923c',drill:'#f87171'};
 
   function renderUserList(users) {
-    const el = document.getElementById('user-admin-list');
+    const inboxEl = document.getElementById('pending-inbox');
+    const listEl = document.getElementById('user-admin-list');
+    const badge = document.getElementById('pending-count-badge');
+    const sectionLabel = document.getElementById('approved-section-label');
     const entries = Object.entries(users);
-    if(!entries.length) { el.innerHTML = '<div class="no-users">No sign-ins yet. Users appear here after their first Google login.</div>'; return; }
-    // Sort: pending first, then approved, then denied
-    entries.sort(([,a],[,b]) => {
-      const order = {pending:0,approved:1,denied:2};
-      return (order[a.status]??1) - (order[b.status]??1);
-    });
-    el.innerHTML = entries.map(([key, u]) => {
-      const statusClass = u.status==='approved'?'us-approved':u.status==='denied'?'us-denied':'us-pending';
-      const statusLabel = u.status==='approved'?'Approved':u.status==='denied'?'Denied':'Pending';
+
+    if(!entries.length) {
+      inboxEl.innerHTML = '';
+      listEl.innerHTML = '<div class="no-users">No sign-ups yet. Users appear here after signing up.</div>';
+      badge.style.display = 'none';
+      sectionLabel.style.display = 'none';
+      return;
+    }
+
+    const pending = entries.filter(([,u]) => u.status === 'pending');
+    const others  = entries.filter(([,u]) => u.status !== 'pending');
+
+    // Badge
+    if(pending.length > 0) {
+      badge.textContent = pending.length + ' pending';
+      badge.style.display = '';
+    } else {
+      badge.style.display = 'none';
+    }
+
+    // Render pending inbox notifications
+    inboxEl.innerHTML = pending.map(([key, u]) => {
       const teamDot = u.team ? TEAM_DOTS[u.team]||'#aaa' : '#444';
-      const teamLabel = u.team ? TEAM_NAMES[u.team]||u.team : '—';
+      const teamLabel = u.team ? TEAM_NAMES[u.team]||u.team : 'No team selected';
       const teamOptions = ['mobility','drone','navigation','arm','drill'].map(t =>
         `<option value="${t}" ${u.team===t?'selected':''}>${TEAM_NAMES[t]}</option>`).join('');
       const avatarHTML = u.photoURL
-        ? `<img src="${u.photoURL}" alt="avatar" />`
-        : `<span style="color:#4ade80;font-weight:700">${(u.displayName||u.email||'?')[0].toUpperCase()}</span>`;
-      return `<div class="user-row" id="ur-${key}">
-        <div class="user-av">${avatarHTML}</div>
-        <div class="user-info">
-          <div class="user-name">${u.displayName||'Unknown'}</div>
-          <div class="user-email">${u.email||key}</div>
-          <div class="user-meta">
-            <span class="user-status-chip ${statusClass}">${statusLabel}</span>
-            ${u.team?`<span class="team-tag" style="color:${teamDot}">${teamLabel}</span>`:'<span class="team-tag">No team</span>'}
+        ? `<img src="${u.photoURL}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%" />`
+        : `<span style="color:#fcd34d;font-weight:700">${(u.displayName||u.email||'?')[0].toUpperCase()}</span>`;
+      const timeAgo = u.signUpAt ? (() => {
+        const s = Math.round((Date.now() - u.signUpAt)/1000);
+        if(s < 60) return 'just now';
+        if(s < 3600) return Math.round(s/60)+'m ago';
+        return Math.round(s/3600)+'h ago';
+      })() : '';
+      return `<div class="inbox-notif" id="ur-${key}">
+        <div class="inbox-icon"><i class="ti ti-user-plus" style="font-size:14px;color:#fcd34d"></i></div>
+        <div class="inbox-body">
+          <div class="inbox-header">
+            <div class="inbox-avatar">${avatarHTML}</div>
+            <div class="inbox-info">
+              <div class="inbox-name">${u.displayName||'Unknown'}</div>
+              <div class="inbox-email">${u.email||key}</div>
+            </div>
+            ${timeAgo ? `<span class="inbox-time">${timeAgo}</span>` : ''}
           </div>
-        </div>
-        <div class="user-actions">
-          <select class="user-team-sel" id="team-sel-${key}" onchange="window.setUserTeam('${key}',this.value)">
-            <option value="">Team…</option>${teamOptions}
-          </select>
-          ${u.status!=='approved'?`<button class="ta-btn" style="background:#0a2a1a;border-color:#1a4a2a;color:#4ade80;font-size:10px;padding:3px 8px" onclick="window.setUserStatus('${key}','approved')">✓ Approve</button>`:''}
-          ${u.status!=='denied'?`<button class="ta-btn" style="background:#2a0a0a;border-color:#4a1a1a;color:#f87171;font-size:10px;padding:3px 8px" onclick="window.setUserStatus('${key}','denied')">✕ Deny</button>`:''}
+          <div class="inbox-team" style="color:${teamDot}"><i class="ti ti-users" style="font-size:10px;vertical-align:-1px;margin-right:4px"></i>${teamLabel}</div>
+          <div class="inbox-team-change">
+            <select class="user-team-sel" id="team-sel-${key}" onchange="window.setUserTeam('${key}',this.value)">
+              <option value="">Change team…</option>${teamOptions}
+            </select>
+          </div>
+          <div class="inbox-actions">
+            <button class="inbox-btn approve" onclick="window.setUserStatus('${key}','approved')">
+              <i class="ti ti-check" style="font-size:11px"></i> Approve
+            </button>
+            <button class="inbox-btn deny" onclick="window.setUserStatus('${key}','denied')">
+              <i class="ti ti-x" style="font-size:11px"></i> Deny
+            </button>
+          </div>
         </div>
       </div>`;
     }).join('');
+
+    // Show/hide divider
+    sectionLabel.style.display = (pending.length > 0 && others.length > 0) ? '' : 'none';
+
+    // Render approved/denied users in compact list
+    if(!others.length) {
+      listEl.innerHTML = pending.length ? '' : '<div class="no-users">No approved or denied members yet.</div>';
+    } else {
+      others.sort(([,a],[,b]) => { const o={approved:0,denied:1}; return (o[a.status]??2)-(o[b.status]??2); });
+      listEl.innerHTML = others.map(([key, u]) => {
+        const statusClass = u.status==='approved'?'us-approved':'us-denied';
+        const statusLabel = u.status==='approved'?'Approved':'Denied';
+        const teamDot = u.team ? TEAM_DOTS[u.team]||'#aaa' : '#444';
+        const teamLabel = u.team ? TEAM_NAMES[u.team]||u.team : '—';
+        const teamOptions = ['mobility','drone','navigation','arm','drill'].map(t =>
+          `<option value="${t}" ${u.team===t?'selected':''}>${TEAM_NAMES[t]}</option>`).join('');
+        const avatarHTML = u.photoURL
+          ? `<img src="${u.photoURL}" alt="avatar" />`
+          : `<span style="color:#4ade80;font-weight:700">${(u.displayName||u.email||'?')[0].toUpperCase()}</span>`;
+        return `<div class="user-row" id="ur-${key}">
+          <div class="user-av">${avatarHTML}</div>
+          <div class="user-info">
+            <div class="user-name">${u.displayName||'Unknown'}</div>
+            <div class="user-email">${u.email||key}</div>
+            <div class="user-meta">
+              <span class="user-status-chip ${statusClass}">${statusLabel}</span>
+              ${u.team?`<span class="team-tag" style="color:${teamDot}">${teamLabel}</span>`:'<span class="team-tag">No team</span>'}
+            </div>
+          </div>
+          <div class="user-actions">
+            <select class="user-team-sel" id="team-sel-${key}" onchange="window.setUserTeam('${key}',this.value)">
+              <option value="">Team…</option>${teamOptions}
+            </select>
+            ${u.status!=='approved'?`<button class="ta-btn" style="background:#0a2a1a;border-color:#1a4a2a;color:#4ade80;font-size:10px;padding:3px 8px" onclick="window.setUserStatus('${key}','approved')">✓ Approve</button>`:''}
+            ${u.status!=='denied'?`<button class="ta-btn" style="background:#2a0a0a;border-color:#4a1a1a;color:#f87171;font-size:10px;padding:3px 8px" onclick="window.setUserStatus('${key}','denied')">✕ Deny</button>`:''}
+          </div>
+        </div>`;
+      }).join('');
+    }
   }
 
   window.setUserStatus = async function(key, status) {
