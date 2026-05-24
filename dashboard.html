@@ -66,6 +66,22 @@
     .guest-banner { background: #0a1a3a; border: 1px solid #1a2a5a; border-radius: 10px; padding: 9px 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; font-size: 11px; color: #60a5fa; }
     .guest-banner i { font-size: 13px; flex-shrink: 0; }
 
+    /* ANNOUNCEMENT BANNER */
+    .announce-banner {
+      background: #1a1205; border: 1px solid #4a3010;
+      border-left: 3px solid #fcd34d;
+      border-radius: 10px; padding: 10px 14px;
+      margin-bottom: 14px; display: none;
+      align-items: flex-start; gap: 10px;
+      font-size: 11px; color: #fcd34d;
+      animation: ab-in 0.3s ease;
+    }
+    .announce-banner.visible { display: flex; }
+    @keyframes ab-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+    .announce-banner i { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+    .announce-banner-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.7px; color: #7a6020; margin-bottom: 3px; }
+    .announce-banner-text { color: #fde68a; line-height: 1.6; }
+
     /* NEEDS ATTENTION BANNER */
     .attention-section { margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; }
     .attn-card { background: #1a1208; border: 1px solid #3d2e0a; border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 10px; font-size: 11px; animation: slideIn 0.25s ease; }
@@ -377,6 +393,15 @@
     &nbsp;<a href="index.html" style="color:#60a5fa;text-decoration:underline;font-size:10px">Sign in</a></span>
   </div>
 
+  <!-- ANNOUNCEMENT BANNER -->
+  <div class="announce-banner" id="announce-banner">
+    <i class="ti ti-speakerphone"></i>
+    <div>
+      <div class="announce-banner-label">Announcement from Admin</div>
+      <div class="announce-banner-text" id="announce-banner-text"></div>
+    </div>
+  </div>
+
   <!-- NEEDS ATTENTION -->
   <div class="attention-section" id="attention-section"></div>
 
@@ -654,6 +679,20 @@
   }
 
   /* ─── FIREBASE LISTENERS ─── */
+
+  // Announcement banner
+  onValue(ref(db,'announcement'), snap => {
+    const d = snap.val();
+    const banner = document.getElementById('announce-banner');
+    const text   = document.getElementById('announce-banner-text');
+    if(d && d.active && d.text) {
+      text.textContent = d.text;
+      banner.classList.add('visible');
+    } else {
+      banner.classList.remove('visible');
+    }
+  });
+
   onValue(ref(db,'teams'),snap=>{
     const data=snap.val();
     if(data){
