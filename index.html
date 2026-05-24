@@ -121,6 +121,31 @@
     .btn-enter.guest-mode { border-color: #1a2a5a; background: #0a1a3a; color: #60a5fa; }
     .btn-enter.guest-mode:hover { background: #0f2245; }
 
+    /* Member sub-tabs: Sign Up / Sign In */
+    .member-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 16px;
+      border-radius: 9px;
+      overflow: hidden;
+      border: 1px solid #2a2a2a;
+    }
+    .member-tab {
+      flex: 1;
+      padding: 9px 0;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      background: #111;
+      color: #555;
+      border: none;
+      transition: background 0.15s, color 0.15s;
+    }
+    .member-tab:first-child { border-right: 1px solid #2a2a2a; }
+    .member-tab.active-tab { background: #0a2a1a; color: #4ade80; }
+    .member-tab:hover:not(.active-tab) { background: #181818; color: #888; }
+
     /* Google Sign-In button */
     .btn-google {
       width: 100%;
@@ -135,13 +160,9 @@
     .btn-google:hover { background: #1a1a1a; border-color: #444; }
     .btn-google:active { transform: scale(0.98); }
     .btn-google:disabled { opacity: 0.5; cursor: not-allowed; }
-    .google-icon {
-      width: 18px; height: 18px; flex-shrink: 0;
-    }
+    .google-icon { width: 18px; height: 18px; flex-shrink: 0; }
 
     /* Team picker (shown after Google sign-in) */
-    .team-picker { display: none; margin-top: 14px; }
-    .team-picker.visible { display: block; }
     .form-select {
       width: 100%;
       background: #111;
@@ -189,17 +210,6 @@
     .access-msg.show { display: block; }
     .access-msg.pending { background: #1a1205; border-color: #4a3010; color: #fcd34d; }
 
-    .divider-text {
-      text-align: center; font-size: 10px; color: #333;
-      margin: 12px 0; position: relative;
-    }
-    .divider-text::before, .divider-text::after {
-      content: ''; position: absolute; top: 50%;
-      width: 38%; height: 1px; background: #222;
-    }
-    .divider-text::before { left: 0; }
-    .divider-text::after { right: 0; }
-
     .footer-note { text-align: center; font-size: 10px; color: #2a2a2a; margin-top: 18px; text-transform: uppercase; letter-spacing: 0.5px; }
 
     @keyframes shake {
@@ -215,6 +225,10 @@
       animation: spin 0.7s linear infinite; display: none;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Signup-specific extra fields shown after google auth */
+    .signup-extra { display: none; margin-top: 2px; }
+    .signup-extra.visible { display: block; }
   </style>
 </head>
 <body>
@@ -262,63 +276,135 @@
   <!-- MEMBER PANEL -->
   <div class="form-panel" id="panel-member">
 
-    <!-- Step 1: Not signed in yet -->
-    <div id="step-signin">
-      <div style="font-size:11px;color:#555;margin-bottom:14px;line-height:1.6;">
-        Sign in with your Google account. Your email must be approved by an admin to get edit access.
-      </div>
-      <button class="btn-google" id="btn-google" onclick="signInWithGoogle()">
-        <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-        </svg>
-        Continue with Google
-        <div class="spinner" id="google-spinner"></div>
+    <!-- Sub-tabs: Sign Up / Sign In -->
+    <div class="member-tabs">
+      <button class="member-tab active-tab" id="tab-signup" onclick="switchMemberTab('signup')">
+        <i class="ti ti-user-plus" style="font-size:11px;vertical-align:-1px;margin-right:4px"></i>Sign Up
       </button>
-      <div class="access-msg" id="access-denied">
-        <i class="ti ti-lock" style="font-size:13px;vertical-align:-2px;margin-right:5px"></i>
-        Access denied. Your account is not approved. Contact your admin to request access.
-      </div>
+      <button class="member-tab" id="tab-signin" onclick="switchMemberTab('signin')">
+        <i class="ti ti-login" style="font-size:11px;vertical-align:-1px;margin-right:4px"></i>Sign In
+      </button>
     </div>
 
-    <!-- Step 2: Signed in, pick team -->
-    <div id="step-team" style="display:none">
-      <div class="google-user-row" id="google-user-row">
-        <div class="google-user-avatar" id="google-avatar"></div>
-        <div class="google-user-info">
-          <div class="google-user-name" id="google-display-name">—</div>
-          <div class="google-user-email" id="google-email">—</div>
+    <!-- SIGN UP flow (new / unverified) -->
+    <div id="member-signup">
+      <!-- Step 1: Google button -->
+      <div id="su-step-google">
+        <div style="font-size:11px;color:#555;margin-bottom:14px;line-height:1.6;">
+          New to the system? Sign up with Google to request member access. An admin will review and approve your account.
         </div>
-        <button class="btn-signout" onclick="signOut()" title="Sign out">
-          <i class="ti ti-logout" style="font-size:12px"></i>
+        <button class="btn-google" id="btn-google-signup" onclick="signUpWithGoogle()">
+          <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Sign Up with Google
+          <div class="spinner" id="su-spinner"></div>
         </button>
       </div>
 
-      <div class="form-group">
-        <label class="fp-label">Your Team</label>
-        <i class="ti ti-users input-icon" aria-hidden="true"></i>
-        <select class="form-select" id="team-select">
-          <option value="">Select your team…</option>
-          <option value="mobility">Mobility</option>
-          <option value="drone">Drone</option>
-          <option value="navigation">Navigation</option>
-          <option value="arm">Robotic Arm</option>
-          <option value="drill">Robotic Drill</option>
-        </select>
-        <i class="ti ti-chevron-down select-chevron" aria-hidden="true"></i>
+      <!-- Step 2: Fill in name + team after Google auth -->
+      <div id="su-step-form" style="display:none">
+        <div class="google-user-row" id="su-user-row">
+          <div class="google-user-avatar" id="su-avatar"></div>
+          <div class="google-user-info">
+            <div class="google-user-name" id="su-display-name">—</div>
+            <div class="google-user-email" id="su-email">—</div>
+          </div>
+          <button class="btn-signout" onclick="signOutSU()" title="Use different account">
+            <i class="ti ti-logout" style="font-size:12px"></i>
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label class="fp-label">Your Name</label>
+          <i class="ti ti-user input-icon" aria-hidden="true"></i>
+          <input class="form-input" type="text" id="su-name" placeholder="Full name" />
+        </div>
+
+        <div class="form-group">
+          <label class="fp-label">Your Team</label>
+          <i class="ti ti-users input-icon" aria-hidden="true"></i>
+          <select class="form-select" id="su-team">
+            <option value="">Select your team…</option>
+            <option value="mobility">Mobility</option>
+            <option value="drone">Drone</option>
+            <option value="navigation">Navigation</option>
+            <option value="arm">Robotic Arm</option>
+            <option value="drill">Robotic Drill</option>
+          </select>
+          <i class="ti ti-chevron-down select-chevron" aria-hidden="true"></i>
+        </div>
+
+        <button class="btn-enter" onclick="submitSignUp()">
+          <i class="ti ti-send" style="font-size:14px" aria-hidden="true"></i>
+          Submit for Approval
+        </button>
+      </div>
+    </div>
+
+    <!-- SIGN IN flow (returning / approved) -->
+    <div id="member-signin" style="display:none">
+      <!-- Step 1: Not signed in yet -->
+      <div id="si-step-google">
+        <div style="font-size:11px;color:#555;margin-bottom:14px;line-height:1.6;">
+          Already approved? Sign in with your Google account to get full member access.
+        </div>
+        <button class="btn-google" id="btn-google-signin" onclick="signInWithGoogle()">
+          <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Sign In with Google
+          <div class="spinner" id="si-spinner"></div>
+        </button>
+        <div class="access-msg" id="si-denied">
+          <i class="ti ti-lock" style="font-size:13px;vertical-align:-2px;margin-right:5px"></i>
+          Access denied. Your account is not approved. Contact your admin or sign up first.
+        </div>
       </div>
 
-      <div class="access-msg" id="access-pending">
-        <i class="ti ti-clock" style="font-size:13px;vertical-align:-2px;margin-right:5px"></i>
-        Your account is pending admin approval. You'll have view-only access until approved.
-      </div>
+      <!-- Step 2: Signed in, pick team -->
+      <div id="si-step-team" style="display:none">
+        <div class="google-user-row" id="si-user-row">
+          <div class="google-user-avatar" id="si-avatar"></div>
+          <div class="google-user-info">
+            <div class="google-user-name" id="si-display-name">—</div>
+            <div class="google-user-email" id="si-email">—</div>
+          </div>
+          <button class="btn-signout" onclick="signOutSI()" title="Sign out">
+            <i class="ti ti-logout" style="font-size:12px"></i>
+          </button>
+        </div>
 
-      <button class="btn-enter" id="btn-enter-dashboard" onclick="enterMember()">
-        <i class="ti ti-arrow-right" style="font-size:14px" aria-hidden="true"></i>
-        Enter Dashboard
-      </button>
+        <div class="form-group">
+          <label class="fp-label">Your Team</label>
+          <i class="ti ti-users input-icon" aria-hidden="true"></i>
+          <select class="form-select" id="si-team">
+            <option value="">Select your team…</option>
+            <option value="mobility">Mobility</option>
+            <option value="drone">Drone</option>
+            <option value="navigation">Navigation</option>
+            <option value="arm">Robotic Arm</option>
+            <option value="drill">Robotic Drill</option>
+          </select>
+          <i class="ti ti-chevron-down select-chevron" aria-hidden="true"></i>
+        </div>
+
+        <div class="access-msg pending" id="si-pending">
+          <i class="ti ti-clock" style="font-size:13px;vertical-align:-2px;margin-right:5px"></i>
+          Your Member Verification is still being processed — please wait for admin approval.
+        </div>
+
+        <button class="btn-enter" id="btn-si-enter" onclick="enterSignIn()">
+          <i class="ti ti-arrow-right" style="font-size:14px" aria-hidden="true"></i>
+          Enter Dashboard
+        </button>
+      </div>
     </div>
 
   </div>
@@ -329,7 +415,7 @@
 <!-- FIREBASE -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getDatabase, ref, set, onValue, onDisconnect } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+  import { getDatabase, ref, set, update, onValue, onDisconnect, get } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut as fbSignOut }
     from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
@@ -347,6 +433,8 @@
   const db  = getDatabase(app);
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
+
+  const TEAM_NAMES = {mobility:'Mobility',drone:'Drone',navigation:'Navigation',arm:'Robotic Arm',drill:'Robotic Drill'};
 
   /* ---- NEURAL NET ---- */
   const canvas = document.getElementById('neural-bg');
@@ -388,7 +476,6 @@
 
   /* ---- ROLE SELECTION ---- */
   let selectedRole = null;
-
   window.selectRole = function(role) {
     selectedRole = role;
     document.getElementById('card-guest').classList.remove('selected-guest','selected-member');
@@ -404,6 +491,16 @@
     }
   };
 
+  /* ---- MEMBER TAB SWITCHING ---- */
+  let activeMemberTab = 'signup';
+  window.switchMemberTab = function(tab) {
+    activeMemberTab = tab;
+    document.getElementById('tab-signup').classList.toggle('active-tab', tab === 'signup');
+    document.getElementById('tab-signin').classList.toggle('active-tab', tab === 'signin');
+    document.getElementById('member-signup').style.display = tab === 'signup' ? 'block' : 'none';
+    document.getElementById('member-signin').style.display = tab === 'signin' ? 'block' : 'none';
+  };
+
   /* ---- GUEST ---- */
   window.enterGuest = function() {
     const name = document.getElementById('guest-name').value.trim() || 'Guest';
@@ -411,127 +508,190 @@
     window.location.href = 'dashboard.html';
   };
 
-  /* ---- GOOGLE SIGN-IN ---- */
-  let currentUser = null;
-
-  onAuthStateChanged(auth, user => {
-    currentUser = user;
-    if(user && selectedRole === 'member') {
-      showSignedInState(user);
-    }
-  });
-
-  window.signInWithGoogle = async function() {
-    const btn = document.getElementById('btn-google');
-    const spinner = document.getElementById('google-spinner');
-    btn.disabled = true;
-    spinner.style.display = 'block';
-    document.getElementById('access-denied').classList.remove('show');
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      currentUser = user;
-      // Register this user in Firebase so admin can see them
-      await set(ref(db, 'users/' + sanitizeKey(user.email)), {
-        email: user.email,
-        displayName: user.displayName || user.email,
-        photoURL: user.photoURL || '',
-        firstSeen: Date.now(),
-        status: 'pending' // admin needs to approve
-      });
-      showSignedInState(user);
-    } catch(err) {
-      if(err.code !== 'auth/popup-closed-by-user') {
-        document.getElementById('access-denied').classList.add('show');
-      }
-    } finally {
-      btn.disabled = false;
-      spinner.style.display = 'none';
-    }
-  };
-
-  function showSignedInState(user) {
-    document.getElementById('step-signin').style.display = 'none';
-    document.getElementById('step-team').style.display = 'block';
-    // Avatar
-    const av = document.getElementById('google-avatar');
+  /* ---- HELPERS ---- */
+  function sanitizeKey(email) {
+    return email.replace(/\./g, '_dot_').replace(/@/g, '_at_').replace(/[^a-zA-Z0-9_]/g, '_');
+  }
+  function setAvatarEl(el, user) {
     if(user.photoURL) {
-      av.innerHTML = `<img src="${user.photoURL}" alt="avatar" />`;
+      el.innerHTML = `<img src="${user.photoURL}" alt="avatar" style="width:100%;height:100%;object-fit:cover;border-radius:50%" />`;
     } else {
-      av.textContent = (user.displayName || user.email || '?')[0].toUpperCase();
+      el.textContent = (user.displayName || user.email || '?')[0].toUpperCase();
     }
-    document.getElementById('google-display-name').textContent = user.displayName || 'Google User';
-    document.getElementById('google-email').textContent = user.email || '';
   }
 
-  window.signOut = async function() {
-    await fbSignOut(auth);
-    currentUser = null;
-    document.getElementById('step-signin').style.display = 'block';
-    document.getElementById('step-team').style.display = 'none';
-    document.getElementById('access-denied').classList.remove('show');
-    document.getElementById('access-pending').classList.remove('show');
+  /* ============================
+     SIGN UP FLOW
+  ============================ */
+  let suUser = null;
+
+  window.signUpWithGoogle = async function() {
+    const btn = document.getElementById('btn-google-signup');
+    const spin = document.getElementById('su-spinner');
+    btn.disabled = true; spin.style.display = 'block';
+    try {
+      const result = await signInWithPopup(auth, provider);
+      suUser = result.user;
+      // Show step 2
+      document.getElementById('su-step-google').style.display = 'none';
+      document.getElementById('su-step-form').style.display = 'block';
+      // Fill avatar & info
+      setAvatarEl(document.getElementById('su-avatar'), suUser);
+      document.getElementById('su-display-name').textContent = suUser.displayName || 'Google User';
+      document.getElementById('su-email').textContent = suUser.email || '';
+      // Auto-fill name (editable)
+      document.getElementById('su-name').value = suUser.displayName || '';
+    } catch(err) {
+      if(err.code !== 'auth/popup-closed-by-user') {
+        alert('Google sign-in failed. Please try again.');
+      }
+    } finally {
+      btn.disabled = false; spin.style.display = 'none';
+    }
   };
 
-  window.enterMember = async function() {
-    if(!currentUser) return;
-    const teamSel = document.getElementById('team-select');
+  window.signOutSU = async function() {
+    await fbSignOut(auth);
+    suUser = null;
+    document.getElementById('su-step-google').style.display = 'block';
+    document.getElementById('su-step-form').style.display = 'none';
+  };
+
+  window.submitSignUp = async function() {
+    if(!suUser) return;
+    const name = document.getElementById('su-name').value.trim() || suUser.displayName || suUser.email;
+    const team = document.getElementById('su-team').value;
+    if(!team) {
+      document.getElementById('su-team').style.borderColor = '#4a1a1a';
+      setTimeout(() => document.getElementById('su-team').style.borderColor = '', 1000);
+      return;
+    }
+    const emailKey = sanitizeKey(suUser.email);
+    // Save as pending in Firebase
+    await set(ref(db, 'users/' + emailKey), {
+      email: suUser.email,
+      displayName: name,
+      photoURL: suUser.photoURL || '',
+      team: team,
+      status: 'pending',
+      signUpAt: Date.now()
+    });
+    // Go to dashboard as guest-pending
+    localStorage.setItem('talatanaw_me', JSON.stringify({
+      key: sessionId,
+      role: 'guest',
+      name: name,
+      team: TEAM_NAMES[team] || team,
+      email: suUser.email,
+      uid: suUser.uid,
+      pendingMember: true
+    }));
+    window.location.href = 'dashboard.html';
+  };
+
+  /* ============================
+     SIGN IN FLOW
+  ============================ */
+  let siUser = null;
+
+  window.signInWithGoogle = async function() {
+    const btn = document.getElementById('btn-google-signin');
+    const spin = document.getElementById('si-spinner');
+    btn.disabled = true; spin.style.display = 'block';
+    document.getElementById('si-denied').classList.remove('show');
+    try {
+      const result = await signInWithPopup(auth, provider);
+      siUser = result.user;
+      // Check if user exists in Firebase
+      const snap = await get(ref(db, 'users/' + sanitizeKey(siUser.email)));
+      const userData = snap.val();
+      // Update last seen
+      if(userData) {
+        await update(ref(db, 'users/' + sanitizeKey(siUser.email)), { lastSeen: Date.now() });
+      } else {
+        // First time — they should use Sign Up instead
+        document.getElementById('si-denied').innerHTML =
+          '<i class="ti ti-info-circle" style="font-size:13px;vertical-align:-2px;margin-right:5px"></i>' +
+          'No account found. Please use <strong>Sign Up</strong> first to request member access.';
+        document.getElementById('si-denied').classList.add('show');
+        await fbSignOut(auth);
+        siUser = null;
+        return;
+      }
+      // Show team step
+      showSITeamStep(siUser, userData);
+    } catch(err) {
+      if(err.code !== 'auth/popup-closed-by-user') {
+        document.getElementById('si-denied').classList.add('show');
+      }
+    } finally {
+      btn.disabled = false; spin.style.display = 'none';
+    }
+  };
+
+  function showSITeamStep(user, userData) {
+    document.getElementById('si-step-google').style.display = 'none';
+    document.getElementById('si-step-team').style.display = 'block';
+    setAvatarEl(document.getElementById('si-avatar'), user);
+    document.getElementById('si-display-name').textContent = userData.displayName || user.displayName || 'Google User';
+    document.getElementById('si-email').textContent = user.email || '';
+    // Pre-select their saved team if any
+    if(userData.team) document.getElementById('si-team').value = userData.team;
+    // Show pending notice if not approved
+    if(userData.status !== 'approved') {
+      document.getElementById('si-pending').classList.add('show');
+    }
+  }
+
+  window.signOutSI = async function() {
+    await fbSignOut(auth);
+    siUser = null;
+    document.getElementById('si-step-google').style.display = 'block';
+    document.getElementById('si-step-team').style.display = 'none';
+    document.getElementById('si-denied').classList.remove('show');
+    document.getElementById('si-pending').classList.remove('show');
+  };
+
+  window.enterSignIn = async function() {
+    if(!siUser) return;
+    const teamSel = document.getElementById('si-team');
     if(!teamSel.value) {
       teamSel.style.borderColor = '#4a1a1a';
       setTimeout(() => teamSel.style.borderColor = '', 1000);
       return;
     }
-    const emailKey = sanitizeKey(currentUser.email);
-    // Check whitelist status
-    const snap = await new Promise(res => onValue(ref(db, 'users/' + emailKey), res, { onlyOnce: true }));
+    const emailKey = sanitizeKey(siUser.email);
+    const snap = await get(ref(db, 'users/' + emailKey));
     const userData = snap.val() || {};
     const isApproved = userData.status === 'approved';
-    const approvedTeam = userData.team || teamSel.value;
-    const TEAM_NAMES = {
-      mobility: 'Mobility', drone: 'Drone', navigation: 'Navigation',
-      arm: 'Robotic Arm', drill: 'Robotic Drill'
-    };
+    await update(ref(db, 'users/' + emailKey), { team: teamSel.value, lastSeen: Date.now() });
 
     if(isApproved) {
-      // Full member
       localStorage.setItem('talatanaw_me', JSON.stringify({
         key: sessionId,
         role: 'member',
-        name: currentUser.displayName || currentUser.email,
-        team: TEAM_NAMES[approvedTeam] || TEAM_NAMES[teamSel.value],
-        email: currentUser.email,
-        uid: currentUser.uid
+        name: userData.displayName || siUser.displayName || siUser.email,
+        team: TEAM_NAMES[teamSel.value] || teamSel.value,
+        email: siUser.email,
+        uid: siUser.uid
       }));
-      // Update selected team
-      await set(ref(db, 'users/' + emailKey + '/team'), teamSel.value);
-      window.location.href = 'dashboard.html';
     } else {
-      // Pending — enter as guest with a note
-      document.getElementById('access-pending').classList.add('show');
-      // Save pending user with selected team for admin to see
-      await set(ref(db, 'users/' + emailKey + '/team'), teamSel.value);
-      await set(ref(db, 'users/' + emailKey + '/lastSeen'), Date.now());
       localStorage.setItem('talatanaw_me', JSON.stringify({
         key: sessionId,
         role: 'guest',
-        name: currentUser.displayName || currentUser.email,
-        team: TEAM_NAMES[teamSel.value],
-        email: currentUser.email,
-        uid: currentUser.uid,
+        name: userData.displayName || siUser.displayName || siUser.email,
+        team: TEAM_NAMES[teamSel.value] || teamSel.value,
+        email: siUser.email,
+        uid: siUser.uid,
         pendingMember: true
       }));
-      setTimeout(() => window.location.href = 'dashboard.html', 2200);
     }
+    window.location.href = 'dashboard.html';
   };
-
-  function sanitizeKey(email) {
-    return email.replace(/\./g, '_dot_').replace(/@/g, '_at_').replace(/[^a-zA-Z0-9_]/g, '_');
-  }
 
   document.addEventListener('keydown', e => {
     if(e.key === 'Enter') {
       if(selectedRole === 'guest') enterGuest();
-      else if(selectedRole === 'member') enterMember();
     }
   });
 </script>
