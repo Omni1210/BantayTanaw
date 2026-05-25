@@ -341,6 +341,75 @@
     .toast.error   { border-color: #4a1a1a; color: #f87171; }
 
     .green{color:#4ade80;} .amber{color:#fb923c;} .red{color:#f87171;} .gray{color:#aaa;}
+
+    /* ═══════ NAV TABS ═══════ */
+    .nav-bar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; border-bottom: 1px solid #1e1e1e; margin-bottom: 18px; }
+    .nav-tabs { display: flex; gap: 2px; }
+    .nav-tab { font-size: 12px; font-family: inherit; background: none; border: none; border-bottom: 2px solid transparent; color: #555; padding: 8px 16px; cursor: pointer; margin-bottom: -1px; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+    .nav-tab:hover { color: #aaa; }
+    .nav-tab.active { color: #4ade80; border-bottom-color: #4ade80; }
+    .nav-tab i { font-size: 13px; }
+
+    /* ═══════ TAB CONTENT ═══════ */
+    .tab-content { display: none; opacity: 0; transition: opacity 0.28s ease; }
+    .tab-content.active { display: block; }
+    .tab-content.visible { opacity: 1; }
+
+    /* ═══════ CALENDAR ═══════ */
+    .cal-layout { display: grid; grid-template-columns: 1fr 290px; gap: 18px; align-items: start; }
+    @media(max-width: 900px) { .cal-layout { grid-template-columns: 1fr; } }
+
+    .cal-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; overflow: hidden; }
+    .cal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #222; }
+    .cal-month { font-size: 15px; font-weight: 700; color: #f0f0f0; }
+    .cal-nav { display: flex; gap: 6px; align-items: center; }
+    .cal-nav-btn { background: #111; border: 1px solid #2a2a2a; color: #aaa; width: 28px; height: 28px; border-radius: 6px; cursor: pointer; font-family: inherit; display: flex; align-items: center; justify-content: center; transition: all 0.15s; font-size: 13px; }
+    .cal-nav-btn:hover { border-color: #4ade80; color: #4ade80; }
+    .cal-today-btn { background: #0a2a1a; border: 1px solid #1a4a2a; color: #4ade80; font-size: 10px; padding: 4px 11px; border-radius: 6px; cursor: pointer; font-family: inherit; font-weight: 700; transition: all 0.15s; }
+    .cal-today-btn:hover { background: #0f3a22; }
+
+    .cal-grid-header { display: grid; grid-template-columns: repeat(7,1fr); border-bottom: 1px solid #1e1e1e; }
+    .cal-day-label { text-align: center; font-size: 9px; color: #555; text-transform: uppercase; letter-spacing: 0.5px; padding: 7px 4px; }
+
+    .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); }
+    .cal-cell { min-height: 70px; border-right: 1px solid #161616; border-bottom: 1px solid #161616; padding: 5px; cursor: pointer; transition: background 0.12s; position: relative; }
+    .cal-cell:nth-child(7n) { border-right: none; }
+    .cal-cell:hover { background: #212121; }
+    .cal-cell.other-month { opacity: 0.25; cursor: default; pointer-events: none; }
+    .cal-cell.today { background: #0a1f10; }
+    .cal-cell.today .cal-date { color: #4ade80; font-weight: 700; }
+    .cal-cell.selected { background: #111f14; outline: 1px solid #1a4a2a; outline-offset: -1px; }
+    .cal-date { font-size: 10px; color: #666; margin-bottom: 3px; }
+    .cal-event-pill { font-size: 8px; padding: 1px 4px; border-radius: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; margin-top: 2px; display: block; }
+
+    /* SIDEBAR */
+    .cal-sidebar { display: flex; flex-direction: column; gap: 10px; }
+    .cal-side-card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px; padding: 14px; }
+    .cal-side-title { font-size: 11px; font-weight: 700; color: #ccc; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
+    .cal-add-btn { background: #0a2a1a; border: 1px solid #1a4a2a; color: #4ade80; font-size: 10px; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-family: inherit; font-weight: 700; transition: all 0.15s; display: flex; align-items: center; gap: 4px; }
+    .cal-add-btn:hover { background: #0f3a22; }
+    .cal-add-btn.locked { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
+
+    .event-item { display: flex; align-items: flex-start; gap: 8px; padding: 7px 0; border-bottom: 1px solid #1e1e1e; }
+    .event-item:last-child { border-bottom: none; }
+    .event-dot-lg { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+    .event-info { flex: 1; min-width: 0; }
+    .event-title { font-size: 11px; font-weight: 700; color: #e0e0e0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .event-meta { font-size: 9px; color: #555; margin-top: 2px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .event-del { background: none; border: none; color: #2a2a2a; cursor: pointer; font-size: 13px; flex-shrink: 0; line-height: 1; padding: 2px; transition: color 0.15s; }
+    .event-del:hover { color: #f87171; }
+    .no-events { font-size: 11px; color: #444; text-align: center; padding: 14px 0; }
+
+    .cal-legend { display: flex; flex-direction: column; gap: 5px; }
+    .legend-item { display: flex; align-items: center; gap: 7px; font-size: 10px; color: #666; }
+    .legend-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ADD EVENT MODAL */
+    .event-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: flex-start; justify-content: center; padding: 20px 16px; overflow-y: auto; }
+    .event-modal-overlay.open { display: flex; }
+    .event-modal { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 14px; padding: 20px; width: 100%; max-width: 400px; margin: auto; }
+    .emh { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .emh h3 { font-size: 14px; font-weight: 700; color: #f0f0f0; }
   </style>
 </head>
 <body>
@@ -401,6 +470,28 @@
       <div class="announce-banner-text" id="announce-banner-text"></div>
     </div>
   </div>
+
+  <!-- NAV BAR -->
+  <div class="nav-bar">
+    <div class="nav-tabs">
+      <button class="nav-tab active" id="tab-dashboard" onclick="switchTab('dashboard')">
+        <i class="ti ti-layout-dashboard"></i> Dashboard
+      </button>
+      <button class="nav-tab" id="tab-calendar" onclick="switchTab('calendar')">
+        <i class="ti ti-calendar"></i> Schedule
+      </button>
+    </div>
+    <!-- filters only on dashboard tab -->
+    <div class="filters" id="dash-filters">
+      <button class="fb active" onclick="filterCards('all',this)" data-filter="all">All</button>
+      <button class="fb" onclick="filterCards('on-track',this)" data-filter="on-track">On track</button>
+      <button class="fb" onclick="filterCards('at-risk',this)" data-filter="at-risk">At risk</button>
+      <button class="fb" onclick="filterCards('blocked',this)" data-filter="blocked">Blocked</button>
+    </div>
+  </div>
+
+  <!-- ══════════ DASHBOARD TAB ══════════ -->
+  <div class="tab-content active" id="content-dashboard">
 
   <!-- NEEDS ATTENTION -->
   <div class="attention-section" id="attention-section"></div>
@@ -467,6 +558,72 @@
           <div class="history-empty"><i class="ti ti-clock-hour-3"></i>No updates yet.<br>Changes appear here.</div>
         </div>
       </div>
+    </div>
+  </div><!-- end .dashboard -->
+  </div><!-- end #content-dashboard -->
+
+  <!-- ══════════ CALENDAR TAB ══════════ -->
+  <div class="tab-content" id="content-calendar">
+    <div class="cal-layout">
+      <div>
+        <div class="cal-card">
+          <div class="cal-header">
+            <div class="cal-month" id="cal-month-label">Loading...</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="cal-today-btn" onclick="goToday()">Today</button>
+              <div class="cal-nav">
+                <button class="cal-nav-btn" onclick="calPrev()"><i class="ti ti-chevron-left"></i></button>
+                <button class="cal-nav-btn" onclick="calNext()"><i class="ti ti-chevron-right"></i></button>
+              </div>
+            </div>
+          </div>
+          <div class="cal-grid-header">
+            <div class="cal-day-label">Sun</div><div class="cal-day-label">Mon</div><div class="cal-day-label">Tue</div>
+            <div class="cal-day-label">Wed</div><div class="cal-day-label">Thu</div><div class="cal-day-label">Fri</div>
+            <div class="cal-day-label">Sat</div>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+        </div>
+      </div>
+      <div class="cal-sidebar">
+        <div class="cal-side-card">
+          <div class="cal-side-title">
+            <span id="cal-selected-label">Upcoming Events</span>
+            <button class="cal-add-btn" id="cal-add-btn" onclick="openAddEvent()">
+              <i class="ti ti-plus" style="font-size:11px"></i> Add
+            </button>
+          </div>
+          <div id="cal-events-list"><div class="no-events">No events yet.</div></div>
+        </div>
+        <div class="cal-side-card">
+          <div class="cal-side-title" style="margin-bottom:10px">Teams</div>
+          <div class="cal-legend" id="cal-legend"></div>
+        </div>
+      </div>
+    </div>
+  </div><!-- end #content-calendar -->
+
+</div><!-- end .root -->
+
+<!-- ADD EVENT MODAL -->
+<div class="event-modal-overlay" id="event-modal">
+  <div class="event-modal">
+    <div class="emh"><h3>Add Event</h3><button class="close-btn" onclick="closeAddEvent()"><i class="ti ti-x"></i></button></div>
+    <div class="fg"><label class="flab">Event Title</label><input class="fi" type="text" id="ev-title" placeholder="e.g. Motor test day" /></div>
+    <div class="fg"><label class="flab">Date</label><input class="fi" type="date" id="ev-date" /></div>
+    <div class="fg"><label class="flab">Note <span style="color:#333">(optional)</span></label><input class="fi" type="text" id="ev-note" placeholder="Short description" /></div>
+    <div class="fg"><label class="flab">Type</label>
+      <select class="fi" id="ev-type">
+        <option value="deadline">Deadline</option>
+        <option value="test">Test / Demo</option>
+        <option value="meeting">Meeting</option>
+        <option value="submission">Submission</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="ma">
+      <button class="btn-cancel" onclick="closeAddEvent()">Cancel</button>
+      <button class="btn-save" id="ev-save-btn" onclick="saveEvent()"><i class="ti ti-check" style="font-size:11px"></i> Add Event</button>
     </div>
   </div>
 </div>
@@ -1089,6 +1246,195 @@
     if(['INPUT','TEXTAREA','SELECT','BUTTON'].includes(e.target.tagName)) return;
     const card=e.target.closest('.tc');
     if(card) card.focus();
+  });
+
+  /* ══════════════════════════════
+     TAB SWITCHING
+  ══════════════════════════════ */
+  window.switchTab = function(tab) {
+    document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+    document.getElementById('tab-'+tab).classList.add('active');
+    document.getElementById('dash-filters').style.display = tab==='dashboard' ? 'flex' : 'none';
+    // fade out
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('visible'));
+    setTimeout(()=>{
+      document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
+      const target = document.getElementById('content-'+tab);
+      target.classList.add('active');
+      setTimeout(()=>{
+        target.classList.add('visible');
+        if(tab==='calendar') { renderCalendar(); renderCalSidebar(); }
+      }, 20);
+    }, 180);
+  };
+  // initial show dashboard
+  setTimeout(()=>document.getElementById('content-dashboard').classList.add('visible'), 50);
+
+  // lock Add button for guests
+  if(isGuest) { const b=document.getElementById('cal-add-btn'); if(b) b.classList.add('locked'); }
+
+  /* ══════════════════════════════
+     CALENDAR
+  ══════════════════════════════ */
+  let calYear = new Date().getFullYear();
+  let calMonth = new Date().getMonth();
+  let CAL_EVENTS = [];
+  let selectedDate = null;
+
+  const EVENT_TYPE_COLORS = {
+    deadline:   '#f87171',
+    test:       '#4ade80',
+    meeting:    '#60a5fa',
+    submission: '#fb923c',
+    other:      '#a78bfa'
+  };
+
+  // Listen for events from Firebase
+  onValue(ref(db,'events'), snap=>{
+    const data = snap.val();
+    CAL_EVENTS = data ? Object.entries(data).map(([k,v])=>({...v,key:k})) : [];
+    // re-render if calendar tab is active
+    if(document.getElementById('content-calendar').classList.contains('active')) {
+      renderCalendar();
+      renderCalSidebar(selectedDate);
+    }
+  });
+
+  function renderCalLegend() {
+    const leg = document.getElementById('cal-legend');
+    const types = [['deadline','Deadline'],['test','Test / Demo'],['meeting','Meeting'],['submission','Submission'],['other','Other']];
+    leg.innerHTML = types.map(([k,l])=>`<div class="legend-item"><div class="legend-dot" style="background:${EVENT_TYPE_COLORS[k]}"></div>${l}</div>`).join('');
+  }
+
+  window.renderCalendar = function() {
+    const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    document.getElementById('cal-month-label').textContent = `${MONTHS[calMonth]} ${calYear}`;
+    const grid = document.getElementById('cal-grid');
+    grid.innerHTML = '';
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+    const daysInPrev  = new Date(calYear, calMonth, 0).getDate();
+    const today = new Date();
+    renderCalLegend();
+
+    // prev month padding
+    for(let i=firstDay-1; i>=0; i--) {
+      grid.insertAdjacentHTML('beforeend',`<div class="cal-cell other-month"><div class="cal-date">${daysInPrev-i}</div></div>`);
+    }
+    // current month
+    for(let d=1; d<=daysInMonth; d++) {
+      const isToday = today.getFullYear()===calYear && today.getMonth()===calMonth && today.getDate()===d;
+      const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isSel   = selectedDate===dateStr;
+      const dayEvents = CAL_EVENTS.filter(e=>e.date===dateStr);
+      const pills = dayEvents.slice(0,2).map(e=>`<div class="cal-event-pill" style="background:${EVENT_TYPE_COLORS[e.type]||'#555'}22;color:${EVENT_TYPE_COLORS[e.type]||'#888'}">${e.title}</div>`).join('');
+      const more  = dayEvents.length>2 ? `<div style="font-size:8px;color:#555">+${dayEvents.length-2}</div>` : '';
+      grid.insertAdjacentHTML('beforeend',`<div class="cal-cell${isToday?' today':''}${isSel?' selected':''}" onclick="window.selectCalDate('${dateStr}')"><div class="cal-date">${d}</div>${pills}${more}</div>`);
+    }
+    // next month padding
+    const totalCells = firstDay + daysInMonth;
+    const remaining  = (7 - totalCells%7) % 7;
+    for(let d=1; d<=remaining; d++) {
+      grid.insertAdjacentHTML('beforeend',`<div class="cal-cell other-month"><div class="cal-date">${d}</div></div>`);
+    }
+  };
+
+  window.selectCalDate = function(dateStr) {
+    selectedDate = dateStr;
+    renderCalendar();
+    renderCalSidebar(dateStr);
+    document.getElementById('ev-date').value = dateStr;
+  };
+
+  function renderCalSidebar(dateStr) {
+    const label = document.getElementById('cal-selected-label');
+    const list  = document.getElementById('cal-events-list');
+    let events;
+    if(dateStr) {
+      const d = new Date(dateStr+'T00:00:00');
+      label.textContent = d.toLocaleDateString('en-PH',{month:'long',day:'numeric',year:'numeric'});
+      events = CAL_EVENTS.filter(e=>e.date===dateStr).sort((a,b)=>a.title.localeCompare(b.title));
+    } else {
+      label.textContent = 'Upcoming Events';
+      const todayStr = new Date().toISOString().slice(0,10);
+      events = CAL_EVENTS.filter(e=>e.date>=todayStr).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,10);
+    }
+    if(!events.length) { list.innerHTML='<div class="no-events">No events here.</div>'; return; }
+    const teamDef = TEAM_DEFAULTS.reduce((acc,t)=>{acc[t.id]=t;return acc;},{});
+    list.innerHTML = events.map(e=>{
+      const td  = teamDef[e.teamId];
+      const dot = td ? td.dot : '#555';
+      const canDel = !isGuest && ME.team === td?.name;
+      const delBtn = canDel ? `<button class="event-del" onclick="window.deleteEvent('${e.key}')" title="Delete"><i class="ti ti-trash"></i></button>` : '';
+      return `<div class="event-item">
+        <div class="event-dot-lg" style="background:${EVENT_TYPE_COLORS[e.type]||'#555'}"></div>
+        <div class="event-info">
+          <div class="event-title">${e.title}</div>
+          <div class="event-meta">
+            <span style="color:${dot}">${td?td.name:'Team'}</span>
+            <span>${e.date}</span>
+            ${e.note?`<span style="color:#555">${e.note}</span>`:''}
+          </div>
+        </div>
+        ${delBtn}
+      </div>`;
+    }).join('');
+  }
+
+  window.calPrev = function() { calMonth--; if(calMonth<0){calMonth=11;calYear--;} selectedDate=null; renderCalendar(); renderCalSidebar(); };
+  window.calNext = function() { calMonth++; if(calMonth>11){calMonth=0;calYear++;} selectedDate=null; renderCalendar(); renderCalSidebar(); };
+  window.goToday = function() { calYear=new Date().getFullYear(); calMonth=new Date().getMonth(); selectedDate=null; renderCalendar(); renderCalSidebar(); };
+
+  /* ADD EVENT */
+  window.openAddEvent = function() {
+    if(isGuest) return;
+    document.getElementById('ev-title').value = '';
+    document.getElementById('ev-note').value  = '';
+    document.getElementById('ev-type').value  = 'deadline';
+    if(!document.getElementById('ev-date').value) {
+      document.getElementById('ev-date').value = new Date().toISOString().slice(0,10);
+    }
+    document.getElementById('event-modal').classList.add('open');
+    setTimeout(()=>document.getElementById('ev-title').focus(), 80);
+  };
+
+  window.closeAddEvent = function() { document.getElementById('event-modal').classList.remove('open'); };
+
+  window.saveEvent = async function() {
+    const btn   = document.getElementById('ev-save-btn');
+    const title = document.getElementById('ev-title').value.trim();
+    const date  = document.getElementById('ev-date').value;
+    if(!title || !date) { showToast('Title and date required','error'); return; }
+    btn.disabled = true;
+    btn.innerHTML = '<i class="ti ti-loader" style="font-size:11px"></i> Saving...';
+    const teamDef = TEAM_DEFAULTS.find(t=>t.name===ME.team);
+    const teamId  = teamDef ? teamDef.id : 'unknown';
+    try {
+      await push(ref(db,'events'), {
+        title, date,
+        note:   document.getElementById('ev-note').value.trim(),
+        type:   document.getElementById('ev-type').value,
+        teamId,
+        createdAt: Date.now()
+      });
+      closeAddEvent();
+      showToast('Event added');
+    } catch(err) {
+      showToast('Failed to add event','error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="ti ti-check" style="font-size:11px"></i> Add Event';
+    }
+  };
+
+  window.deleteEvent = async function(key) {
+    try { await remove(ref(db,'events/'+key)); showToast('Event removed'); }
+    catch(err) { showToast('Failed to delete','error'); }
+  };
+
+  // close event modal on backdrop click
+  document.getElementById('event-modal').addEventListener('click', e=>{
+    if(e.target===document.getElementById('event-modal')) closeAddEvent();
   });
 </script>
 </body>
